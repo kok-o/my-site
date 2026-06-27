@@ -131,7 +131,7 @@ export function Navbar() {
           {/* Desktop actions */}
           <div className="hidden items-center gap-3 md:flex">
             <ThemeToggle />
-            <Link
+            <a
               href="#contact"
               className={cn(
                 'inline-flex h-9 items-center justify-center rounded-md px-4 text-sm font-medium',
@@ -142,7 +142,7 @@ export function Navbar() {
               )}
             >
               Get in Touch
-            </Link>
+            </a>
           </div>
 
           {/* Mobile: Theme toggle + Hamburger */}
@@ -208,7 +208,7 @@ export function Navbar() {
               ))}
 
               <motion.div variants={shouldReduceMotion ? undefined : mobileMenuItems}>
-                <Link
+                <a
                   href="#contact"
                   onClick={closeMobile}
                   className={cn(
@@ -219,7 +219,7 @@ export function Navbar() {
                   )}
                 >
                   Get in Touch
-                </Link>
+                </a>
               </motion.div>
             </motion.nav>
           </motion.div>
