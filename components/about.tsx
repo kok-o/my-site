@@ -18,7 +18,7 @@ export function About() {
       <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
         
         {/* Left Column — Philosophy / Bio */}
-        <ScrollReveal className="lg:col-span-5">
+        <div className="lg:col-span-5">
           <div className="sticky top-32 flex flex-col gap-6">
             <h3 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
               My Philosophy
@@ -47,7 +47,7 @@ export function About() {
               </div>
             </div>
           </div>
-        </ScrollReveal>
+        </div>
 
         {/* Right Column — Experience Timeline */}
         <ScrollReveal stagger className="lg:col-span-7 lg:pl-12">
