@@ -6,6 +6,7 @@ import { Hero } from '@/components/hero'
 import { Projects } from '@/components/projects'
 import { About } from '@/components/about'
 import { Skills } from '@/components/skills'
+import { Contact } from '@/components/contact'
 
 export default function HomePage() {
   return (
@@ -22,10 +23,8 @@ export default function HomePage() {
       {/* Stage 6: Skills */}
       <Skills />
 
-      {/*
-        Sections are assembled here as they are built:
-        Stage 7: <Contact />
-      */}
+      {/* Stage 7: Contact */}
+      <Contact />
     </>
   )
 }
