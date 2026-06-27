@@ -36,13 +36,9 @@ export function About() {
             </div>
 
             {/* Stats / Highlights (Static for now, can be data-driven later) */}
-            <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border/50 pt-6">
+            <div className="mt-6 grid grid-cols-1 gap-4 border-t border-border/50 pt-6">
               <div>
-                <p className="text-3xl font-bold tracking-tighter text-foreground">3+</p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground">Years Experience</p>
-              </div>
-              <div>
-                <p className="text-3xl font-bold tracking-tighter text-foreground">10+</p>
+                <p className="text-3xl font-bold tracking-tighter text-foreground">5+</p>
                 <p className="mt-1 text-sm font-medium text-muted-foreground">Projects Shipped</p>
               </div>
             </div>
