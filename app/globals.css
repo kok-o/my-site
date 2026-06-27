@@ -80,11 +80,11 @@
   --accent-cyan:   oklch(0.752 0.144 210);   /* ≈ #06B6D4 — subtle accent  */
 
   /* --- Gradients --- */
-  --gradient-accent:        linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
-  --gradient-accent-subtle: linear-gradient(135deg, oklch(0.623 0.214 259 / 15%), oklch(0.541 0.281 293 / 15%));
-  --gradient-glow:          radial-gradient(ellipse at 50% 0%, oklch(0.623 0.214 259 / 12%) 0%, transparent 60%);
-  --gradient-hero-bg:       radial-gradient(ellipse at 50% -20%, oklch(0.623 0.214 259 / 18%) 0%, transparent 55%),
-                            radial-gradient(ellipse at 80% 60%, oklch(0.541 0.281 293 / 10%) 0%, transparent 45%);
+  --gradient-accent:        linear-gradient(135deg, oklch(0.8 0 0), oklch(0.5 0 0));
+  --gradient-accent-subtle: linear-gradient(135deg, oklch(1 0 0 / 15%), oklch(1 0 0 / 5%));
+  --gradient-glow:          radial-gradient(ellipse at 50% 0%, oklch(1 0 0 / 5%) 0%, transparent 60%);
+  --gradient-hero-bg:       radial-gradient(ellipse at 50% -20%, oklch(1 0 0 / 8%) 0%, transparent 55%),
+                            radial-gradient(ellipse at 80% 60%, oklch(1 0 0 / 4%) 0%, transparent 45%);
 
   /* --- Glassmorphism --- */
   --glass-blur:    16px;
@@ -95,8 +95,8 @@
   --shadow-md:            0 4px 12px oklch(0 0 0 / 0.5);
   --shadow-lg:            0 8px 24px oklch(0 0 0 / 0.5);
   --shadow-xl:            0 16px 48px oklch(0 0 0 / 0.6);
-  --shadow-glow:          0 0 40px oklch(0.623 0.214 259 / 0.15);
-  --shadow-glow-intense:  0 0 80px oklch(0.623 0.214 259 / 0.25);
+  --shadow-glow:          0 0 40px oklch(1 0 0 / 0.05);
+  --shadow-glow-intense:  0 0 80px oklch(1 0 0 / 0.1);
 
   /* --- Animation timing --- */
   --duration-fast:   150ms;
@@ -154,44 +154,44 @@
    DARK THEME SEMANTIC TOKENS (default / primary theme)
    ============================================================ */
 .dark {
-  --background: oklch(0.09 0 0);
+  --background: oklch(0 0 0);
   --foreground: oklch(0.985 0 0);
-  --card:                oklch(0.13 0.005 260 / 60%);
+  --card:                oklch(0.12 0 0 / 60%);
   --card-foreground:     oklch(0.985 0 0);
-  --popover:             oklch(0.16 0.005 260);
+  --popover:             oklch(0.12 0 0);
   --popover-foreground:  oklch(0.985 0 0);
-  --primary:             var(--accent-blue);
-  --primary-foreground:  oklch(0.985 0 0);
-  --secondary:           oklch(0.18 0.005 260);
+  --primary:             oklch(0.985 0 0);
+  --primary-foreground:  oklch(0.1 0 0);
+  --secondary:           oklch(0.15 0 0);
   --secondary-foreground: oklch(0.9 0 0);
-  --muted:               oklch(0.18 0.005 260);
-  --muted-foreground:    oklch(0.556 0 0);
-  --accent:              var(--accent-blue);
+  --muted:               oklch(0.15 0 0);
+  --muted-foreground:    oklch(0.6 0 0);
+  --accent:              oklch(0.15 0 0);
   --accent-foreground:   oklch(0.985 0 0);
   --destructive:         oklch(0.704 0.191 22.216);
-  --border:              oklch(1 0 0 / 8%);
+  --border:              oklch(1 0 0 / 10%);
   --input:               oklch(1 0 0 / 12%);
-  --ring:                var(--accent-blue);
+  --ring:                oklch(1 0 0 / 20%);
 
   /* Charts */
-  --chart-1: var(--accent-blue);
-  --chart-2: var(--accent-violet);
-  --chart-3: var(--accent-cyan);
-  --chart-4: oklch(0.723 0.191 142);
-  --chart-5: oklch(0.556 0 0);
+  --chart-1: oklch(0.9 0 0);
+  --chart-2: oklch(0.8 0 0);
+  --chart-3: oklch(0.7 0 0);
+  --chart-4: oklch(0.6 0 0);
+  --chart-5: oklch(0.5 0 0);
 
   /* Sidebar */
-  --sidebar:                    oklch(0.13 0.005 260);
+  --sidebar:                    oklch(0.12 0 0);
   --sidebar-foreground:         oklch(0.985 0 0);
-  --sidebar-primary:            var(--accent-blue);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent:             oklch(0.18 0.005 260);
+  --sidebar-primary:            oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.1 0 0);
+  --sidebar-accent:             oklch(0.15 0 0);
   --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border:             oklch(1 0 0 / 8%);
-  --sidebar-ring:               var(--accent-blue);
+  --sidebar-border:             oklch(1 0 0 / 10%);
+  --sidebar-ring:               oklch(1 0 0 / 20%);
 
   /* Override glass for dark mode */
-  --glass-bg: oklch(0.13 0.005 260 / 55%);
+  --glass-bg: oklch(0.12 0 0 / 55%);
 }
 
 /* ============================================================
