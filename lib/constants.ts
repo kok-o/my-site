@@ -7,13 +7,13 @@
 // Personal Info
 // ---------------------------------------------------------------------------
 export const SITE_CONFIG = {
-  name: 'Your Name',
-  role: 'AI Full Stack Developer',
-  tagline: 'Building intelligent products at the intersection of AI and great UX.',
+  name: 'Nurkhan Esenbek',
+  role: 'Full Stack Developer',
+  tagline: 'I build modern web applications powered by AI, focusing on clean architecture, exceptional user experience, and scalable full-stack solutions. Passionate about creating products that combine performance, elegant design, and intelligent automation.',
   description:
-    'AI Full Stack Developer specialising in LLM-powered applications, scalable APIs, and premium web interfaces.',
-  email: 'hello@yourname.dev',
-  location: 'Remote · Open to Worldwide',
+    'Full Stack Developer specialising in modern web applications, clean architecture, and AI-powered solutions.',
+  email: 'esenbeknrhan2@gmail.com',
+  location: 'Kazakhstan, Astana (Available for Remote Work)',
   availableForWork: true,
 } as const
 
@@ -23,9 +23,9 @@ export const SITE_CONFIG = {
 export const SITE_METADATA = {
   title: `${SITE_CONFIG.name} — ${SITE_CONFIG.role}`,
   description: SITE_CONFIG.description,
-  url: 'https://yourname.dev',
+  url: 'https://kok-o.github.io/my-site', // TODO: Update with your actual domain
   ogImage: '/og-image.png',
-  twitterHandle: '@yourhandle',
+  twitterHandle: '@yourhandle', // TODO: Update if you have Twitter/X
 } as const
 
 // ---------------------------------------------------------------------------
@@ -55,18 +55,18 @@ export interface SocialLink {
 export const SOCIAL_LINKS: SocialLink[] = [
   {
     platform: 'GitHub',
-    href: 'https://github.com/yourhandle',
+    href: 'https://github.com/kok-o',
     ariaLabel: 'View GitHub profile',
   },
   {
     platform: 'LinkedIn',
-    href: 'https://linkedin.com/in/yourhandle',
+    href: '', // TODO: Add your LinkedIn profile URL here
     ariaLabel: 'View LinkedIn profile',
   },
   {
-    platform: 'Twitter',
-    href: 'https://twitter.com/yourhandle',
-    ariaLabel: 'View Twitter profile',
+    platform: 'Telegram',
+    href: 'https://t.me/k0ko_tg',
+    ariaLabel: 'Contact on Telegram',
   },
 ]
 
