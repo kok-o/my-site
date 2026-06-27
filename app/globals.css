@@ -215,7 +215,7 @@
     @apply bg-background text-foreground font-sans antialiased;
     /* Subtle gradient glow at the very top of the page */
     background-image: var(--gradient-glow);
-    background-attachment: fixed;
+    background-repeat: no-repeat;
     transition: background-color 300ms ease, color 300ms ease;
   }
 
