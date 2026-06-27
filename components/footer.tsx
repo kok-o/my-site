@@ -57,7 +57,7 @@ export function Footer() {
             <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2" role="list">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
-                  <Link
+                  <a
                     href={link.href}
                     className={cn(
                       'text-sm text-muted-foreground transition-colors duration-200',
@@ -66,7 +66,7 @@ export function Footer() {
                     )}
                   >
                     {link.label}
-                  </Link>
+                  </a>
                 </li>
               ))}
             </ul>
