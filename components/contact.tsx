@@ -13,13 +13,14 @@ export function Contact() {
   const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     
-    // Copy to clipboard for users without a default mail app
+    // Copy to clipboard as a fallback
     navigator.clipboard.writeText(SITE_CONFIG.email)
     setCopied(true)
     setTimeout(() => setCopied(false), 3000)
 
-    // Try to open mail client in the same window (prevents blank tab)
-    window.location.href = `mailto:${SITE_CONFIG.email}`
+    // Open Gmail compose window in a new tab (reliable for most users)
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${SITE_CONFIG.email}`
+    window.open(gmailUrl, '_blank', 'noopener,noreferrer')
   }
 
   return (
