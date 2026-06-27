@@ -49,17 +49,7 @@ export function Hero() {
           animate="visible"
           className="mx-auto flex max-w-4xl flex-col items-center justify-center gap-6"
         >
-          {/* Eyebrow badge */}
-          <motion.div
-            variants={shouldReduceMotion ? undefined : fadeInUp}
-            className="flex items-center gap-2 rounded-full border border-border bg-foreground/5 px-4 py-1.5 text-sm font-medium text-foreground backdrop-blur-md transition-colors hover:bg-foreground/10"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
-            </span>
-            {SITE_CONFIG.location}
-          </motion.div>
+
 
           {/* Main Title (Vercel / Apple / Linear style typography) */}
           <motion.h1

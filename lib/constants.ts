@@ -8,12 +8,11 @@
 // ---------------------------------------------------------------------------
 export const SITE_CONFIG = {
   name: 'Nurkhan Esenbek',
-  role: 'Full Stack Developer',
-  tagline: 'I build modern web applications powered by AI, focusing on clean architecture, exceptional user experience, and scalable full-stack solutions. Passionate about creating products that combine performance, elegant design, and intelligent automation.',
+  role: 'AI & Full Stack Developer',
+  tagline: 'Building fast, scalable and intelligent web experiences with modern technologies.',
   description:
     'Full Stack Developer specialising in modern web applications, clean architecture, and AI-powered solutions.',
   email: 'esenbeknrhan2@gmail.com',
-  location: 'Kazakhstan, Astana',
   availableForWork: true,
 } as const
 
