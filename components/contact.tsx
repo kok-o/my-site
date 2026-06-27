@@ -27,6 +27,8 @@ export function Contact() {
 
           <a
             href={`mailto:${SITE_CONFIG.email}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className={cn(
               'group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-full px-8 text-base font-semibold text-primary-foreground',
               'bg-primary shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-intense',
