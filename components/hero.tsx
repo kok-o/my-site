@@ -14,7 +14,7 @@ export function Hero() {
     <section
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden pt-20"
+      className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden pt-20"
     >
       {/* ------------------------------------------------------------------- */}
       {/* Background Effects (Grid & Glows) */}
@@ -99,7 +99,7 @@ export function Hero() {
             variants={shouldReduceMotion ? undefined : slideInLeft}
             className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6"
           >
-            <Link
+            <a
               href="#projects"
               className={cn(
                 'group relative inline-flex h-12 items-center justify-center gap-2 overflow-hidden rounded-md px-8 text-sm font-medium text-primary-foreground',
@@ -112,7 +112,7 @@ export function Hero() {
               </div>
               View Projects
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+            </a>
 
             {/* Resume Button (Disabled/Hidden until ready) */}
             <button

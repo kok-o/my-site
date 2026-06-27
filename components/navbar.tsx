@@ -31,7 +31,7 @@ interface NavLinkItemProps {
 
 function NavLinkItem({ href, label, onClick, className }: NavLinkItemProps) {
   return (
-    <Link
+    <a
       href={href}
       onClick={onClick}
       className={cn(
@@ -42,7 +42,7 @@ function NavLinkItem({ href, label, onClick, className }: NavLinkItemProps) {
       )}
     >
       {label}
-    </Link>
+    </a>
   )
 }
 
