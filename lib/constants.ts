@@ -185,30 +185,29 @@ export interface Experience {
 
 export const EXPERIENCE: Experience[] = [
   {
-    id: 'exp-1',
-    company: 'AI Startup (Stealth)',
-    role: 'Senior Full Stack + AI Engineer',
-    period: '2024 — Present',
+    id: 'exp-iqadam',
+    company: 'iQadam Systems',
+    role: 'Frontend Developer Intern',
+    period: 'Nov 2025 — Dec 2025',
     description:
-      'Leading frontend architecture and AI integration for a B2B SaaS product serving enterprise clients.',
+      'Developed responsive web applications and collaborated with the team to deliver high-quality user interfaces.',
     highlights: [
-      'Built LLM-powered document processing pipeline reducing manual review time by 70%',
-      'Architected React + Next.js frontend with real-time streaming via Server-Sent Events',
-      'Designed RAG system with Pinecone achieving 94% retrieval accuracy',
+      'Built responsive web applications using React, Next.js, TypeScript, and Tailwind CSS',
+      'Created reusable UI components and integrated REST APIs',
+      'Optimized application performance and collaborated using Git',
     ],
-    current: true,
+    current: false,
   },
   {
-    id: 'exp-2',
-    company: 'TechCorp',
-    role: 'Full Stack Developer',
-    period: '2022 — 2024',
+    id: 'exp-spacelab',
+    company: 'SpaceLab',
+    role: 'Frontend Developer Intern',
+    period: '2024 — 2025',
     description:
-      'Developed and maintained multiple customer-facing products and internal tools.',
+      'Completed practical training in frontend development.',
     highlights: [
-      'Migrated legacy monolith to microservices, improving deployment frequency 5×',
-      'Led cross-functional team of 6 engineers to deliver product on schedule',
-      'Reduced API response times by 40% through caching and query optimisation',
+      'Gained hands-on experience with modern web technologies',
+      'Participated in team collaborations and development workflows',
     ],
     current: false,
   },
