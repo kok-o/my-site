@@ -60,7 +60,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     platform: 'LinkedIn',
-    href: '', // TODO: Add your LinkedIn profile URL here
+    href: 'https://linkedin.com/in/nurkhan-esenbek-9b9979419',
     ariaLabel: 'View LinkedIn profile',
   },
   {
