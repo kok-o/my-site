@@ -87,50 +87,26 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
-    id: 'ai-chat-platform',
-    title: 'AI Chat Platform',
+    id: 'code-ai',
+    title: 'CodeAi',
     description:
-      'Production-grade LLM chat interface with streaming, RAG pipeline, and multi-model support.',
-    tags: ['Next.js', 'OpenAI', 'Pinecone', 'Prisma', 'TypeScript'],
-    image: '/projects/ai-chat.png',
-    href: 'https://demo.yourname.dev/chat',
-    githubHref: 'https://github.com/yourhandle/ai-chat',
+      'A comprehensive graduation project combining programming courses, interactive problem-solving, an in-browser IDE, and an AI chat assistant.',
+    tags: ['Next.js', 'React', 'TypeScript', 'Gemini API', 'Web IDE'],
+    image: '/projects/codeai.png',
+    githubHref: 'https://github.com/kok-o/CodeAi',
     featured: true,
-    year: 2024,
+    year: 2026,
   },
   {
-    id: 'devops-dashboard',
-    title: 'DevOps Dashboard',
+    id: 'ai-miky',
+    title: 'AI Miky',
     description:
-      'Real-time infrastructure monitoring dashboard with AI-powered anomaly detection and auto-remediation.',
-    tags: ['React', 'Python', 'FastAPI', 'Prometheus', 'Docker'],
-    image: '/projects/devops.png',
-    href: 'https://demo.yourname.dev/devops',
-    githubHref: 'https://github.com/yourhandle/devops-dashboard',
-    featured: true,
-    year: 2024,
-  },
-  {
-    id: 'code-review-ai',
-    title: 'Code Review AI',
-    description:
-      'GitHub-integrated AI code reviewer that catches bugs, suggests improvements, and enforces team style guides.',
-    tags: ['Node.js', 'GitHub API', 'GPT-4', 'TypeScript', 'PostgreSQL'],
-    image: '/projects/code-review.png',
-    githubHref: 'https://github.com/yourhandle/code-review-ai',
+      'An AI assistant application built with Flutter, Firebase, and Gemini API for facilitating simple, intelligent conversations.',
+    tags: ['Flutter', 'Firebase', 'Gemini API', 'Dart'],
+    image: '/projects/aimiky.png',
+    githubHref: 'https://github.com/kok-o/ai-miky',
     featured: true,
     year: 2025,
-  },
-  {
-    id: 'ml-pipeline',
-    title: 'ML Training Pipeline',
-    description:
-      'End-to-end machine learning pipeline with experiment tracking, model versioning, and automated deployment.',
-    tags: ['Python', 'MLflow', 'Kubernetes', 'AWS', 'FastAPI'],
-    image: '/projects/ml-pipeline.png',
-    githubHref: 'https://github.com/yourhandle/ml-pipeline',
-    featured: false,
-    year: 2023,
   },
 ]
 
