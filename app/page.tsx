@@ -4,6 +4,7 @@
 
 import { Hero } from '@/components/hero'
 import { Projects } from '@/components/projects'
+import { About } from '@/components/about'
 
 export default function HomePage() {
   return (
@@ -14,9 +15,11 @@ export default function HomePage() {
       {/* Stage 3+4: Projects */}
       <Projects />
 
+      {/* Stage 5: About */}
+      <About />
+
       {/*
         Sections are assembled here as they are built:
-        Stage 5: <About />
         Stage 6: <Skills />
         Stage 7: <Contact />
       */}
