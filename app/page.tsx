@@ -3,6 +3,7 @@
 // Sections are added one at a time as they are built (Stages 2–7).
 
 import { Hero } from '@/components/hero'
+import { Projects } from '@/components/projects'
 
 export default function HomePage() {
   return (
@@ -10,9 +11,11 @@ export default function HomePage() {
       {/* Stage 2: Hero */}
       <Hero />
 
+      {/* Stage 3+4: Projects */}
+      <Projects />
+
       {/*
         Sections are assembled here as they are built:
-        Stage 3+4: <Projects />
         Stage 5: <About />
         Stage 6: <Skills />
         Stage 7: <Contact />

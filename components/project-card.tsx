@@ -21,8 +21,6 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       variants={shouldReduceMotion ? undefined : fadeInUp}
       whileHover={shouldReduceMotion ? undefined : 'hover'}
       whileTap={shouldReduceMotion ? undefined : 'tap'}
-      initial="rest"
-      animate="rest"
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-2xl',
         'border border-border/50 bg-card/50 text-card-foreground shadow-sm',
