@@ -208,6 +208,7 @@
     -webkit-text-size-adjust: 100%;
     /* Scroll offset for fixed navbar */
     scroll-padding-top: 80px;
+    overflow-y: overlay;
   }
 
   body {
@@ -256,15 +257,16 @@
     height: 12px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--background);
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 6px;
-    border: 3px solid var(--background);
+    border: 3px solid transparent;
+    background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--muted-foreground);
+    background-color: var(--muted-foreground);
   }
 }
 
