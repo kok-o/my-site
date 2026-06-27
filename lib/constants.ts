@@ -13,7 +13,7 @@ export const SITE_CONFIG = {
   description:
     'Full Stack Developer specialising in modern web applications, clean architecture, and AI-powered solutions.',
   email: 'esenbeknrhan2@gmail.com',
-  location: 'Kazakhstan, Astana (Available for Remote Work)',
+  location: 'Kazakhstan, Astana',
   availableForWork: true,
 } as const
 
