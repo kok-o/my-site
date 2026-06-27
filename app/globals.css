@@ -87,8 +87,6 @@
                             radial-gradient(ellipse at 80% 60%, oklch(0.541 0.281 293 / 10%) 0%, transparent 45%);
 
   /* --- Glassmorphism --- */
-  --glass-bg:      oklch(0.13 0.005 260 / 50%);
-  --glass-border:  oklch(1 0 0 / 8%);
   --glass-blur:    16px;
 
   /* --- Shadows --- */
@@ -131,6 +129,8 @@
   --input:               oklch(0 0 0 / 6%);
   --ring:                var(--accent-blue);
   --radius: 0.625rem;
+  --glass-bg:            oklch(1 0 0 / 70%);
+  --glass-border:        oklch(0 0 0 / 8%);
 
   /* Charts */
   --chart-1: var(--accent-blue);
