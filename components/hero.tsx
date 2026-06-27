@@ -19,7 +19,13 @@ export function Hero() {
       {/* ------------------------------------------------------------------- */}
       {/* Background Effects (Grid & Glows) */}
       {/* ------------------------------------------------------------------- */}
-      <div className="absolute inset-0 -z-10 bg-background">
+      <div 
+        className="absolute inset-0 -z-10 pointer-events-none"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)'
+        }}
+      >
         {/* Subtle dot grid */}
         <div
           className="absolute inset-0 bg-[length:24px_24px] opacity-20 dark:opacity-[0.08]"
@@ -31,26 +37,24 @@ export function Hero() {
 
         {/* Ambient top glow */}
         <div className="absolute top-0 left-1/2 -ml-[40vw] h-[50vh] w-[80vw] rounded-full bg-primary/20 blur-[120px]" />
-      </div>
 
-      {/* ------------------------------------------------------------------- */}
-      {/* Animated Floating Blobs */}
-      {/* ------------------------------------------------------------------- */}
-      {!shouldReduceMotion && (
-        <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center overflow-hidden">
-          <motion.div
-            variants={blobPulse}
-            animate="animate"
-            className="absolute left-1/4 top-1/4 h-[400px] w-[400px] rounded-full bg-[var(--accent-blue)] opacity-20 blur-[100px] mix-blend-screen"
-          />
-          <motion.div
-            variants={blobPulse}
-            animate="animate"
-            style={{ animationDelay: '2s' }}
-            className="absolute right-1/4 bottom-1/4 h-[350px] w-[350px] rounded-full bg-[var(--accent-violet)] opacity-20 blur-[100px] mix-blend-screen"
-          />
-        </div>
-      )}
+        {/* Animated Floating Blobs */}
+        {!shouldReduceMotion && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              variants={blobPulse}
+              animate="animate"
+              className="absolute left-1/4 top-1/4 h-[400px] w-[400px] rounded-full bg-[var(--accent-blue)] opacity-20 blur-[100px] mix-blend-screen"
+            />
+            <motion.div
+              variants={blobPulse}
+              animate="animate"
+              style={{ animationDelay: '2s' }}
+              className="absolute right-1/4 bottom-1/4 h-[350px] w-[350px] rounded-full bg-[var(--accent-violet)] opacity-20 blur-[100px] mix-blend-screen"
+            />
+          </div>
+        )}
+      </div>
 
       {/* ------------------------------------------------------------------- */}
       {/* Main Content */}
