@@ -129,8 +129,8 @@
   --input:               oklch(0 0 0 / 6%);
   --ring:                var(--accent-blue);
   --radius: 0.625rem;
-  --glass-bg:            oklch(1 0 0 / 70%);
-  --glass-border:        oklch(0 0 0 / 8%);
+  --glass-bg:            oklch(1 0 0 / 60%);
+  --glass-border:        oklch(0 0 0 / 12%);
 
   /* Charts */
   --chart-1: var(--accent-blue);
@@ -269,6 +269,7 @@
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(var(--glass-blur)) saturate(180%);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    box-shadow: 0 8px 32px oklch(0 0 0 / 4%);
   }
 
   /* Gradient border via pseudo-element pattern */
