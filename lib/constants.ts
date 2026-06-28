@@ -103,7 +103,8 @@ export const PROJECTS: Project[] = [
     description:
       'An AI assistant application built with Flutter, Firebase, and Gemini API for facilitating simple, intelligent conversations.',
     tags: ['Flutter', 'Firebase', 'Gemini API', 'Dart'],
-    image: '/projects/aimiky.png',
+    image: '/projects/aimiky.jpg',
+    href: 'https://futter-kurs.web.app/',
     githubHref: 'https://github.com/kok-o/ai-miky',
     featured: true,
     year: 2025,
