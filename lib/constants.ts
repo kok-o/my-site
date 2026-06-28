@@ -93,6 +93,7 @@ export const PROJECTS: Project[] = [
       'A comprehensive graduation project combining programming courses, interactive problem-solving, an in-browser IDE, and an AI chat assistant.',
     tags: ['Next.js', 'React', 'TypeScript', 'Gemini API', 'Web IDE'],
     image: '/projects/codeai.png',
+    href: 'https://codeai-app-npbs.onrender.com/',
     githubHref: 'https://github.com/kok-o/CodeAi',
     featured: true,
     year: 2026,
