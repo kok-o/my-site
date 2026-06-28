@@ -32,15 +32,27 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       {/* ------------------------------------------------------------------- */}
       {/* Image Container */}
       {/* ------------------------------------------------------------------- */}
-      <div className="relative aspect-video w-full overflow-hidden border-b border-border/50">
-        <div className="absolute inset-0 z-10 bg-background/10 transition-opacity duration-300 group-hover:opacity-0" />
-        <motion.div variants={shouldReduceMotion ? undefined : cardHover} className="h-full w-full">
+      <div className="relative aspect-video w-full overflow-hidden border-b border-border/50 bg-black/20">
+        <div className="absolute inset-0 z-20 bg-background/10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
+        <motion.div variants={shouldReduceMotion ? undefined : cardHover} className="relative h-full w-full">
+          {/* Blurred Background to fill empty space */}
+          <div className="absolute inset-0 overflow-hidden">
+            <Image
+              src={project.image}
+              alt=""
+              fill
+              className="object-cover opacity-40 blur-xl scale-110 saturate-150"
+              aria-hidden="true"
+            />
+          </div>
+          
+          {/* Main Image */}
           <Image
             src={project.image}
             alt={`Screenshot of ${project.title}`}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-contain transition-transform duration-500"
+            className="object-contain drop-shadow-2xl transition-transform duration-500 z-10"
             // Ensure no priority as this is below fold (Projects section)
             priority={false}
           />
