@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { fadeInUp } from '@/lib/animations'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useCallback, useEffect, useState } from 'react'
+import { useIntl } from 'react-intl'
 
 interface ProjectCardProps {
   project: Project
@@ -23,6 +24,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const intl = useIntl()
 
   useEffect(() => {
     setMounted(true)
@@ -168,7 +170,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex items-center justify-between gap-4">
           <h3 className="font-heading text-xl font-semibold tracking-tight">
-            {project.title}
+            {intl.formatMessage({ id: `project.${project.id}.title` })}
           </h3>
           <span className="shrink-0 text-sm font-medium text-muted-foreground">
             {project.year}
@@ -176,7 +178,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         </div>
 
         <p className="mb-6 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-          {project.description}
+          {intl.formatMessage({ id: `project.${project.id}.description` })}
         </p>
 
         <div className="mt-auto flex flex-col gap-6">
@@ -206,7 +208,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 )}
               >
                 <GitHubIcon className="h-4 w-4" aria-hidden="true" />
-                Source
+                {intl.formatMessage({ id: 'project.source' })}
               </a>
             )}
             
@@ -222,7 +224,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 )}
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                Live Demo
+                {intl.formatMessage({ id: 'project.liveDemo' })}
               </a>
             )}
           </div>

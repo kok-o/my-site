@@ -1,18 +1,23 @@
-// Skills section — Server Component
+'use client'
+
+// Skills section
 
 import { SKILL_CATEGORIES } from '@/lib/constants'
 import { SectionHeading } from '@/components/section-heading'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import { cn } from '@/lib/utils'
+import { useIntl } from 'react-intl'
 
 export function Skills() {
+  const intl = useIntl()
+
   return (
     <section id="skills" className="section-spacing section-container">
       <SectionHeading
         id="skills-heading"
-        eyebrow="Expertise"
-        heading="Technical Arsenal"
-        description="A comprehensive list of the tools, frameworks, and technologies I use to build scalable web applications and AI solutions."
+        eyebrow={intl.formatMessage({ id: 'skills.eyebrow' })}
+        heading={intl.formatMessage({ id: 'skills.heading' })}
+        description={intl.formatMessage({ id: 'skills.description' })}
         align="center"
       />
 

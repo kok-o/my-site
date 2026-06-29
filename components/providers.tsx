@@ -6,6 +6,7 @@
 
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import type { ReactNode } from 'react'
+import { LanguageProvider } from '@/components/language-provider'
 
 interface ProvidersProps {
   children: ReactNode
@@ -13,14 +14,16 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="dark"
-      enableSystem
-      disableTransitionOnChange={false}
-    >
-      {children}
-    </NextThemesProvider>
+    <LanguageProvider>
+      <NextThemesProvider
+        attribute="class"
+        defaultTheme="dark"
+        enableSystem
+        disableTransitionOnChange={false}
+      >
+        {children}
+      </NextThemesProvider>
+    </LanguageProvider>
   )
 }
 

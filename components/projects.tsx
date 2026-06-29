@@ -1,19 +1,24 @@
-// Projects section — Server Component
+'use client'
+
+// Projects section
 // Renders the list of projects using the ProjectCard component.
 
 import { PROJECTS } from '@/lib/constants'
 import { SectionHeading } from '@/components/section-heading'
 import { ProjectCard } from '@/components/project-card'
 import { ScrollReveal } from '@/components/scroll-reveal'
+import { useIntl } from 'react-intl'
 
 export function Projects() {
+  const intl = useIntl()
+
   return (
     <section id="projects" className="section-spacing section-container">
       <SectionHeading
         id="projects-heading"
-        eyebrow="Portfolio"
-        heading="Featured Projects"
-        description="A selection of my recent work, focusing on AI integrations, robust backend architecture, and premium frontend experiences."
+        eyebrow={intl.formatMessage({ id: 'projects.eyebrow' })}
+        heading={intl.formatMessage({ id: 'projects.heading' })}
+        description={intl.formatMessage({ id: 'projects.description' })}
       />
 
       {/* Grid of projects with staggered reveal animation */}

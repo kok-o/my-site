@@ -1,5 +1,6 @@
-// Footer — Server Component
-// Static content — no interactivity needed. Stays Server Component.
+'use client'
+
+// Footer
 // Brand icons (GitHub, LinkedIn, X/Twitter) are inlined as SVG because
 // lucide-react v1.21+ removed all brand icons. Inline SVG is the correct
 // approach per DEVELOPMENT_RULES.md (official brand assets, vector-only).
@@ -7,6 +8,7 @@
 import Link from 'next/link'
 import { SITE_CONFIG, SOCIAL_LINKS, NAV_LINKS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import { useIntl } from 'react-intl'
 
 // ---------------------------------------------------------------------------
 import { GitHubIcon, LinkedInIcon, TelegramIcon, type IconProps } from '@/components/icons'
@@ -25,6 +27,7 @@ const SOCIAL_ICONS: Record<string, React.ComponentType<IconProps>> = {
 // ---------------------------------------------------------------------------
 export function Footer() {
   const currentYear = new Date().getFullYear()
+  const intl = useIntl()
 
   return (
     <footer
@@ -65,7 +68,7 @@ export function Footer() {
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
                     )}
                   >
-                    {link.label}
+                    {intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })}
                   </a>
                 </li>
               ))}
@@ -103,7 +106,7 @@ export function Footer() {
         {/* Bottom — copyright */}
         <div className="mt-8 border-t border-border pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} {SITE_CONFIG.name}. Built with{' '}
+            &copy; {currentYear} {SITE_CONFIG.name}. {intl.formatMessage({ id: 'footer.builtWith' })}{' '}
             <a
               href="https://nextjs.org"
               target="_blank"
@@ -112,7 +115,7 @@ export function Footer() {
             >
               Next.js
             </a>
-            {' '}and{' '}
+            {' '}{intl.formatMessage({ id: 'footer.and' })}{' '}
             <a
               href="https://vercel.com"
               target="_blank"

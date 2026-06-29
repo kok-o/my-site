@@ -12,6 +12,8 @@ import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NAV_LINKS, SITE_CONFIG } from '@/lib/constants'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { useIntl } from 'react-intl'
 import {
   navbarEntrance,
   mobileMenuOverlay,
@@ -53,6 +55,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion()
+  const intl = useIntl()
 
   // Detect scroll to apply glass background
   useEffect(() => {
@@ -123,13 +126,14 @@ export function Navbar() {
           >
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
-                <NavLinkItem href={link.href} label={link.label} />
+                <NavLinkItem href={link.href} label={intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })} />
               </li>
             ))}
           </ul>
 
           {/* Desktop actions */}
           <div className="hidden items-center gap-3 md:flex">
+            <LanguageSwitcher />
             <ThemeToggle />
             <a
               href="#contact"
@@ -141,12 +145,13 @@ export function Navbar() {
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               )}
             >
-              Get in Touch
+              {intl.formatMessage({ id: 'nav.contact' })}
             </a>
           </div>
 
           {/* Mobile: Theme toggle + Hamburger */}
           <div className="flex items-center gap-2 md:hidden">
+            <LanguageSwitcher />
             <ThemeToggle />
             <button
               type="button"
@@ -200,7 +205,7 @@ export function Navbar() {
                 >
                   <NavLinkItem
                     href={link.href}
-                    label={link.label}
+                    label={intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })}
                     onClick={closeMobile}
                     className="text-2xl font-semibold text-foreground"
                   />
@@ -218,7 +223,7 @@ export function Navbar() {
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                   )}
                 >
-                  Get in Touch
+                  {intl.formatMessage({ id: 'nav.contact' })}
                 </a>
               </motion.div>
             </motion.nav>

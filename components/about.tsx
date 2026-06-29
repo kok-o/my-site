@@ -1,18 +1,23 @@
-// About section — Server Component
+'use client'
+
+// About section
 
 import { SITE_CONFIG, EXPERIENCE } from '@/lib/constants'
 import { SectionHeading } from '@/components/section-heading'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import { cn } from '@/lib/utils'
+import { useIntl } from 'react-intl'
 
 export function About() {
+  const intl = useIntl()
+
   return (
     <section id="about" className="section-spacing section-container">
       <SectionHeading
         id="about-heading"
-        eyebrow="About Me"
-        heading="Background & Experience"
-        description="A blend of engineering, design, and AI to build products that solve real problems."
+        eyebrow={intl.formatMessage({ id: 'about.eyebrow' })}
+        heading={intl.formatMessage({ id: 'about.heading' })}
+        description={intl.formatMessage({ id: 'about.description' })}
       />
 
       <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
@@ -21,17 +26,17 @@ export function About() {
         <div className="lg:col-span-5 relative">
           <div className="sticky top-32 h-fit self-start flex flex-col gap-6">
             <h3 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-              My Philosophy
+              {intl.formatMessage({ id: 'about.philosophy' })}
             </h3>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
-                {SITE_CONFIG.tagline}
+                {intl.formatMessage({ id: 'hero.tagline' })}
               </p>
               <p>
-                {SITE_CONFIG.description}
+                {intl.formatMessage({ id: 'about.description_main' })}
               </p>
               <p>
-                I believe that the best software is not just functional, but an absolute joy to use. By combining cutting-edge AI capabilities with meticulous frontend architecture, I strive to create web experiences that feel native, fast, and intelligent.
+                {intl.formatMessage({ id: 'about.philosophy_p1' })}
               </p>
             </div>
 
@@ -39,7 +44,7 @@ export function About() {
             <div className="mt-6 grid grid-cols-1 gap-4 border-t border-border/50 pt-6">
               <div>
                 <p className="text-3xl font-bold tracking-tighter text-foreground">5+</p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground">Projects Shipped</p>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">{intl.formatMessage({ id: 'about.projectsShipped' })}</p>
               </div>
             </div>
           </div>
@@ -48,7 +53,7 @@ export function About() {
         {/* Right Column — Experience Timeline */}
         <ScrollReveal stagger className="lg:col-span-7 lg:pl-12">
           <h3 className="mb-8 font-heading text-2xl font-semibold tracking-tight text-foreground">
-            Experience
+            {intl.formatMessage({ id: 'about.experience' })}
           </h3>
           
           <div className="relative border-l border-border/50 pl-8 ml-4 lg:ml-0">
@@ -70,26 +75,26 @@ export function About() {
 
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                   <h4 className="text-lg font-semibold text-foreground">
-                    {exp.role}
+                    {intl.formatMessage({ id: `exp.${exp.id.replace('exp-', '')}.role` })}
                   </h4>
                   <span className="text-sm font-medium text-muted-foreground bg-secondary/50 px-2.5 py-0.5 rounded-full w-fit">
-                    {exp.period}
+                    {intl.formatMessage({ id: `exp.${exp.id.replace('exp-', '')}.period` })}
                   </span>
                 </div>
 
                 <p className="text-base font-medium text-primary/90">
-                  {exp.company}
+                  {intl.formatMessage({ id: `exp.${exp.id.replace('exp-', '')}.company` })}
                 </p>
 
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {exp.description}
+                  {intl.formatMessage({ id: `exp.${exp.id.replace('exp-', '')}.description` })}
                 </p>
 
                 <ul className="mt-4 flex flex-col gap-2">
-                  {exp.highlights.map((highlight, i) => (
+                  {exp.highlights.map((_, i) => (
                     <li key={i} className="flex gap-2 text-sm text-muted-foreground">
                       <span className="text-primary mt-1 shrink-0">•</span>
-                      <span className="leading-relaxed">{highlight}</span>
+                      <span className="leading-relaxed">{intl.formatMessage({ id: `exp.${exp.id.replace('exp-', '')}.hl${i + 1}` })}</span>
                     </li>
                   ))}
                 </ul>

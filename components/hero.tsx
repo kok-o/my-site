@@ -1,14 +1,17 @@
 'use client'
 
-import { motion, useReducedMotion } from 'framer-motion'
+import { useReducedMotion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { FileText, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { SITE_CONFIG } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { heroStagger, fadeInUp, slideInLeft, blobPulse } from '@/lib/animations'
+import { useIntl } from 'react-intl'
 
 export function Hero() {
   const shouldReduceMotion = useReducedMotion()
+  const intl = useIntl()
 
   return (
     <section
@@ -59,7 +62,7 @@ export function Hero() {
           >
             <span className="block text-foreground">{SITE_CONFIG.name}.</span>
             <span className="text-gradient block mt-2 pb-2">
-              {SITE_CONFIG.role}.
+              {intl.formatMessage({ id: 'hero.role' })}.
             </span>
           </motion.h1>
 
@@ -68,7 +71,7 @@ export function Hero() {
             variants={shouldReduceMotion ? undefined : fadeInUp}
             className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground sm:text-xl"
           >
-            {SITE_CONFIG.tagline}
+            {intl.formatMessage({ id: 'hero.tagline' })}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -87,7 +90,7 @@ export function Hero() {
               <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
                 <div className="relative h-full w-8 bg-white/20" />
               </div>
-              View Projects
+              {intl.formatMessage({ id: 'hero.viewProjects' })}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </a>
 
@@ -101,10 +104,10 @@ export function Hero() {
                 'border border-border bg-background/50 text-foreground backdrop-blur-sm',
                 'transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               )}
-              title="View CV"
+              title={intl.formatMessage({ id: 'hero.downloadCV' })}
             >
               <FileText className="h-4 w-4" />
-              Download CV
+              {intl.formatMessage({ id: 'hero.downloadCV' })}
             </a>
           </motion.div>
         </motion.div>

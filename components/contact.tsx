@@ -6,9 +6,11 @@ import { SITE_CONFIG } from '@/lib/constants'
 import { SectionHeading } from '@/components/section-heading'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import { cn } from '@/lib/utils'
+import { useIntl } from 'react-intl'
 
 export function Contact() {
   const [copied, setCopied] = useState(false)
+  const intl = useIntl()
 
   const handleContactClick = () => {
     // Copy to clipboard as a fallback
@@ -29,9 +31,9 @@ export function Contact() {
           <div className="absolute inset-0 -z-10 bg-[var(--gradient-glow)] opacity-50 mix-blend-screen" />
 
           <SectionHeading
-            eyebrow="What's Next"
-            heading="Let's build something amazing together."
-            description="Currently available for freelance work and open to new opportunities. Whether you have a question or just want to say hi, I'll try my best to get back to you!"
+            eyebrow={intl.formatMessage({ id: 'contact.eyebrow' })}
+            heading={intl.formatMessage({ id: 'contact.heading' })}
+            description={intl.formatMessage({ id: 'contact.description' })}
             align="center"
             className="mb-8"
           />
@@ -53,7 +55,7 @@ export function Contact() {
             ) : (
               <Mail className="h-5 w-5" aria-hidden="true" />
             )}
-            {copied ? 'Email Copied!' : 'Say Hello'}
+            {copied ? intl.formatMessage({ id: 'contact.emailCopied' }) : intl.formatMessage({ id: 'contact.sayHello' })}
           </a>
         </div>
       </ScrollReveal>
