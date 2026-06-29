@@ -78,7 +78,7 @@ export interface Project {
   description: string
   longDescription?: string
   tags: string[]
-  image: string
+  images: string[]
   href?: string
   githubHref?: string
   featured: boolean
@@ -92,7 +92,18 @@ export const PROJECTS: Project[] = [
     description:
       'A comprehensive graduation project combining programming courses, interactive problem-solving, an in-browser IDE, and an AI chat assistant.',
     tags: ['Next.js', 'React', 'TypeScript', 'Gemini API', 'Web IDE'],
-    image: '/projects/codeai.png',
+    images: [
+      '/projects/codeai.png',
+      '/projects/codeai - 2.png',
+      '/projects/codeai - 3.png',
+      '/projects/codeai - 4.png',
+      '/projects/codeai - 5.png',
+      '/projects/codeai - 6.png',
+      '/projects/codeai - 7.png',
+      '/projects/codeai - 8.png',
+      '/projects/codeai - 9.png',
+      '/projects/codeai - 10.png'
+    ],
     href: 'https://codeai-app-npbs.onrender.com/',
     githubHref: 'https://github.com/kok-o/CodeAi',
     featured: true,
@@ -104,7 +115,12 @@ export const PROJECTS: Project[] = [
     description:
       'An AI assistant application built with Flutter, Firebase, and Gemini API for facilitating simple, intelligent conversations.',
     tags: ['Flutter', 'Firebase', 'Gemini API', 'Dart'],
-    image: '/projects/aimiky.jpg',
+    images: [
+      '/projects/aimiky.png',
+      '/projects/aimiky - 2.png',
+      '/projects/aimiky - 3.png',
+      '/projects/aimiky - 4.png'
+    ],
     href: 'https://futter-kurs.web.app/',
     githubHref: 'https://github.com/kok-o/ai-miky',
     featured: true,

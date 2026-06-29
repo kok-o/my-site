@@ -2,11 +2,13 @@
 
 import Image from 'next/image'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import { GitHubIcon } from '@/components/icons'
 import { type Project } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { cardHover, fadeInUp } from '@/lib/animations'
+import { fadeInUp } from '@/lib/animations'
+import useEmblaCarousel from 'embla-carousel-react'
+import { useCallback, useEffect, useState } from 'react'
 
 interface ProjectCardProps {
   project: Project
@@ -16,11 +18,37 @@ interface ProjectCardProps {
 export function ProjectCard({ project, className }: ProjectCardProps) {
   const shouldReduceMotion = useReducedMotion()
 
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const scrollPrev = useCallback(() => {
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
+
+  const scrollNext = useCallback(() => {
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
+
+  const scrollTo = useCallback((index: number) => {
+    if (emblaApi) emblaApi.scrollTo(index)
+  }, [emblaApi])
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setSelectedIndex(emblaApi.selectedScrollSnap())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
+  }, [emblaApi, onSelect])
+
   return (
     <motion.article
       variants={shouldReduceMotion ? undefined : fadeInUp}
       whileHover={shouldReduceMotion ? undefined : 'hover'}
-      whileTap={shouldReduceMotion ? undefined : 'tap'}
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-2xl',
         'border border-border/50 bg-card/50 text-card-foreground shadow-sm',
@@ -30,33 +58,76 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       )}
     >
       {/* ------------------------------------------------------------------- */}
-      {/* Image Container */}
+      {/* Image Carousel Container */}
       {/* ------------------------------------------------------------------- */}
-      <div className="relative aspect-video w-full overflow-hidden border-b border-border/50 bg-black/20">
+      <div className="relative aspect-video w-full overflow-hidden border-b border-border/50 bg-black/20 group/carousel">
         <div className="absolute inset-0 z-20 bg-background/10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
-        <motion.div variants={shouldReduceMotion ? undefined : cardHover} className="relative h-full w-full">
-          {/* Blurred Background to fill empty space */}
-          <div className="absolute inset-0 overflow-hidden">
-            <Image
-              src={project.image}
-              alt=""
-              fill
-              className="object-cover opacity-40 blur-xl scale-110 saturate-150"
-              aria-hidden="true"
-            />
+        
+        <div className="overflow-hidden h-full" ref={emblaRef}>
+          <div className="flex h-full touch-pan-y">
+            {project.images.map((img, index) => (
+              <div className="relative flex-[0_0_100%] min-w-0 h-full" key={index}>
+                {/* Blurred Background to fill empty space */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <Image
+                    src={img}
+                    alt=""
+                    fill
+                    className="object-cover opacity-40 blur-xl scale-110 saturate-150"
+                    aria-hidden="true"
+                  />
+                </div>
+                
+                {/* Main Image */}
+                <Image
+                  src={img}
+                  alt={`Screenshot ${index + 1} of ${project.title}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-contain drop-shadow-2xl transition-transform duration-500 z-10"
+                  priority={false}
+                />
+              </div>
+            ))}
           </div>
-          
-          {/* Main Image */}
-          <Image
-            src={project.image}
-            alt={`Screenshot of ${project.title}`}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-contain drop-shadow-2xl transition-transform duration-500 z-10"
-            // Ensure no priority as this is below fold (Projects section)
-            priority={false}
-          />
-        </motion.div>
+        </div>
+
+        {/* Carousel Navigation Arrows */}
+        {project.images.length > 1 && (
+          <>
+            <button
+              onClick={scrollPrev}
+              className="absolute left-2 top-1/2 z-30 -translate-y-1/2 rounded-full bg-background/80 p-1.5 text-foreground opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover/carousel:opacity-100"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              onClick={scrollNext}
+              className="absolute right-2 top-1/2 z-30 -translate-y-1/2 rounded-full bg-background/80 p-1.5 text-foreground opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover/carousel:opacity-100"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1.5 rounded-full bg-background/50 px-2 py-1 backdrop-blur-sm">
+              {project.images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => scrollTo(index)}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all duration-300",
+                    index === selectedIndex 
+                      ? "w-4 bg-primary" 
+                      : "w-1.5 bg-primary/40 hover:bg-primary/60"
+                  )}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* ------------------------------------------------------------------- */}
