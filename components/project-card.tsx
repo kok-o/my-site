@@ -1,8 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { motion, useReducedMotion } from 'framer-motion'
-import { ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
+import { ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { createPortal } from 'react-dom'
 import { GitHubIcon } from '@/components/icons'
 import { type Project } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -20,6 +21,12 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -45,8 +52,29 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
     emblaApi.on('reInit', onSelect)
   }, [emblaApi, onSelect])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsLightboxOpen(false)
+      if (e.key === 'ArrowLeft' && isLightboxOpen) scrollPrev()
+      if (e.key === 'ArrowRight' && isLightboxOpen) scrollNext()
+    }
+    
+    if (isLightboxOpen) {
+      window.addEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'unset'
+    }
+  }, [isLightboxOpen, scrollPrev, scrollNext])
+
   return (
-    <motion.article
+    <>
+      <motion.article
       variants={shouldReduceMotion ? undefined : fadeInUp}
       whileHover={shouldReduceMotion ? undefined : 'hover'}
       className={cn(
@@ -66,7 +94,14 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         <div className="overflow-hidden h-full" ref={emblaRef}>
           <div className="flex h-full touch-pan-y">
             {project.images.map((img, index) => (
-              <div className="relative flex-[0_0_100%] min-w-0 h-full" key={index}>
+              <div 
+                className="relative flex-[0_0_100%] min-w-0 h-full cursor-zoom-in" 
+                key={index}
+                onClick={() => {
+                  if (emblaApi && !emblaApi.clickAllowed()) return;
+                  setIsLightboxOpen(true);
+                }}
+              >
                 {/* Blurred Background to fill empty space */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                   <Image
@@ -197,6 +232,67 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         </div>
       </div>
     </motion.article>
+
+    {mounted && createPortal(
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md"
+            onClick={() => setIsLightboxOpen(false)}
+          >
+            <button
+              onClick={() => setIsLightboxOpen(false)}
+              className="absolute right-4 top-4 z-[110] rounded-full bg-white/10 p-2 text-white hover:bg-white/25 transition-colors"
+              aria-label="Close lightbox"
+            >
+              <X className="h-6 w-6" />
+            </button>
+
+            {project.images.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); scrollPrev(); }}
+                  className="absolute left-4 md:left-8 top-1/2 z-[110] -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/25 transition-colors"
+                  aria-label="Previous image"
+                >
+                  <ChevronLeft className="h-8 w-8 md:h-12 md:w-12" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); scrollNext(); }}
+                  className="absolute right-4 md:right-8 top-1/2 z-[110] -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/25 transition-colors"
+                  aria-label="Next image"
+                >
+                  <ChevronRight className="h-8 w-8 md:h-12 md:w-12" />
+                </button>
+              </>
+            )}
+            
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative h-full w-full max-h-[90vh] max-w-[90vw]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Image
+                src={project.images[selectedIndex]}
+                alt={`Fullscreen ${project.title}`}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>,
+      document.body
+    )}
+    </>
   )
 }
 
