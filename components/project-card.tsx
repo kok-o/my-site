@@ -97,10 +97,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               <div 
                 className="relative flex-[0_0_100%] min-w-0 h-full cursor-zoom-in" 
                 key={index}
-                onClick={() => {
-                  if (emblaApi && !emblaApi.clickAllowed()) return;
-                  setIsLightboxOpen(true);
-                }}
+                onClick={() => setIsLightboxOpen(true)}
               >
                 {/* Blurred Background to fill empty space */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
