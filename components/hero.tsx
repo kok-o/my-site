@@ -91,20 +91,21 @@ export function Hero() {
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </a>
 
-            {/* Resume Button (Disabled/Hidden until ready) */}
-            <button
-              disabled
-              aria-disabled="true"
+            {/* Resume Button */}
+            <a
+              href="/cv.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
               className={cn(
                 'inline-flex h-12 items-center justify-center gap-2 rounded-md px-8 text-sm font-medium',
-                'border border-border bg-background/50 text-muted-foreground backdrop-blur-sm',
-                'cursor-not-allowed opacity-60',
+                'border border-border bg-background/50 text-foreground backdrop-blur-sm',
+                'transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
               )}
-              title="CV will be available soon"
+              title="View CV"
             >
               <FileText className="h-4 w-4" />
               Download CV
-            </button>
+            </a>
           </motion.div>
         </motion.div>
       </div>
