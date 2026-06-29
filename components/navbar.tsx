@@ -109,7 +109,7 @@ export function Navbar() {
               className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-bold select-none"
               aria-hidden="true"
             >
-              {SITE_CONFIG.name.slice(0, 2).toUpperCase()}
+              {SITE_CONFIG.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
             </span>
             <span className="hidden font-semibold text-foreground sm:block">
               {SITE_CONFIG.name}
