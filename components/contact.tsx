@@ -10,17 +10,12 @@ import { cn } from '@/lib/utils'
 export function Contact() {
   const [copied, setCopied] = useState(false)
 
-  const handleContactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault()
-    
+  const handleContactClick = () => {
     // Copy to clipboard as a fallback
     navigator.clipboard.writeText(SITE_CONFIG.email)
     setCopied(true)
     setTimeout(() => setCopied(false), 3000)
-
-    // Open Gmail compose window in a new tab (reliable for most users)
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${SITE_CONFIG.email}`
-    window.open(gmailUrl, '_blank', 'noopener,noreferrer')
+    // The native mailto: link will execute automatically since we didn't call preventDefault()
   }
 
   return (
