@@ -102,14 +102,15 @@ export function Navbar() {
             aria-label={`${SITE_CONFIG.name} — home`}
             className="group flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
           >
-            <motion.span
+            <motion.div
               whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
               whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-bold select-none"
+              className="flex h-8 w-8 items-center justify-center select-none overflow-hidden rounded-md bg-black dark:bg-white"
               aria-hidden="true"
             >
-              {SITE_CONFIG.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-            </motion.span>
+              <img src="/logo1.png" alt="Logo" className="hidden h-full w-full scale-110 object-contain dark:block" />
+              <img src="/logo2.png" alt="Logo" className="block h-full w-full scale-110 object-contain dark:hidden" />
+            </motion.div>
             <span className="hidden font-semibold text-foreground sm:block">
               {SITE_CONFIG.name}
             </span>
@@ -169,19 +170,6 @@ export function Navbar() {
               <FileText className="h-4 w-4" aria-hidden="true" />
               {intl.formatMessage({ id: 'hero.downloadCV' })}
             </motion.a>
-
-            {/* Contacts — SECONDARY outline button */}
-            <a
-              href="#contact"
-              className={cn(
-                'inline-flex h-9 items-center justify-center rounded-md px-4 text-sm font-medium',
-                'border border-border bg-transparent text-muted-foreground',
-                'transition-all duration-200 hover:bg-secondary hover:text-foreground hover:border-primary/30',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-              )}
-            >
-              {intl.formatMessage({ id: 'nav.contacts' })}
-            </a>
           </div>
 
           {/* Mobile: Theme toggle + Hamburger */}
@@ -283,21 +271,6 @@ export function Navbar() {
                 >
                   <FileText className="h-4 w-4" aria-hidden="true" />
                   {intl.formatMessage({ id: 'hero.downloadCV' })}
-                </a>
-              </motion.div>
-
-              <motion.div variants={shouldReduceMotion ? undefined : mobileMenuItems}>
-                <a
-                  href="#contact"
-                  onClick={closeMobile}
-                  className={cn(
-                    'inline-flex h-11 items-center justify-center rounded-md px-8 text-base font-medium',
-                    'border border-border bg-background text-foreground',
-                    'transition-all duration-200 hover:bg-secondary',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                  )}
-                >
-                  {intl.formatMessage({ id: 'nav.contact' })}
                 </a>
               </motion.div>
             </motion.nav>

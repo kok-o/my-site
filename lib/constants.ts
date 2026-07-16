@@ -39,7 +39,7 @@ export const NAV_LINKS: NavLink[] = [
   { label: 'Projects', href: '#projects' },
   { label: 'About', href: '#about' },
   { label: 'Skills', href: '#skills' },
-  { label: 'GitHub', href: 'https://github.com/kok-o' },
+  { label: 'Contacts', href: '#contact' },
 ]
 
 // ---------------------------------------------------------------------------

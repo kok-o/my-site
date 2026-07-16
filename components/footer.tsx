@@ -42,29 +42,38 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-8 sm:flex-row sm:gap-4">
 
           {/* Left — Brand + tagline */}
-          <div className="flex flex-col items-center gap-1 sm:items-start">
+          <div className="flex items-center justify-center sm:justify-start">
             <Link
               href="/"
               aria-label={`${SITE_CONFIG.name} — back to top`}
-              className="font-semibold text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
+              className="group flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
             >
-              {SITE_CONFIG.name}
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center select-none overflow-hidden rounded-md bg-black dark:bg-white transition-transform group-hover:scale-105">
+                <img src="/logo1.png" alt="Logo" className="hidden h-full w-full scale-110 object-contain dark:block" />
+                <img src="/logo2.png" alt="Logo" className="block h-full w-full scale-110 object-contain dark:hidden" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-semibold text-foreground transition-colors group-hover:text-primary">
+                  {SITE_CONFIG.name}
+                </span>
+                <span className="text-xs text-muted-foreground transition-colors group-hover:text-foreground/70">
+                  {SITE_CONFIG.role}
+                </span>
+              </div>
             </Link>
-            <p className="text-xs text-muted-foreground">
-              {SITE_CONFIG.role}
-            </p>
           </div>
 
           {/* Center — Nav links */}
           <nav aria-label="Footer navigation">
             <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2" role="list">
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.filter(link => link.label !== 'Contacts').map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
                     className={cn(
-                      'text-sm text-muted-foreground transition-colors duration-200',
+                      'relative text-sm font-medium text-muted-foreground transition-colors duration-200',
                       'hover:text-foreground',
+                      'after:absolute after:bottom-[-3px] after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
                     )}
                   >
