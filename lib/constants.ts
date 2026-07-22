@@ -22,9 +22,9 @@ export const SITE_CONFIG = {
 export const SITE_METADATA = {
   title: `${SITE_CONFIG.name} — ${SITE_CONFIG.role}`,
   description: SITE_CONFIG.description,
-  url: 'https://kok-o.github.io/my-site', // TODO: Update with your actual domain
+  url: 'https://my-site-tau-plum.vercel.app',
   ogImage: '/og-image.png',
-  twitterHandle: '@yourhandle', // TODO: Update if you have Twitter/X
+  twitterHandle: undefined as string | undefined,
 } as const
 
 // ---------------------------------------------------------------------------
