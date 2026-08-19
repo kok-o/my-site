@@ -8,6 +8,8 @@ import { GitHubIcon } from '@/components/icons'
 import { type Project } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { fadeInUp } from '@/lib/animations'
+import { useTheme } from 'next-themes'
+import { useLanguage } from '@/components/language-provider'
 import useEmblaCarousel from 'embla-carousel-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
@@ -19,17 +21,34 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, className }: ProjectCardProps) {
   const shouldReduceMotion = useReducedMotion()
-
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
-  const [selectedIndex, setSelectedIndex] = useState(0)
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
   const intl = useIntl()
+  const { locale } = useLanguage()
+  const { theme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  const currentTheme = (mounted ? (resolvedTheme || theme) : 'dark') === 'light' ? 'light' : 'dark'
+
+  // Resolve localized & theme-aware images
+  const images = (() => {
+    if (project.themeImages) {
+      const langConfig = project.themeImages[locale] || project.themeImages.en || project.themeImages.ru
+      if (langConfig) {
+        const themeList = langConfig[currentTheme]
+        if (themeList && themeList.length > 0) {
+          return themeList
+        }
+      }
+    }
+    return project.images
+  })()
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -54,6 +73,15 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
     emblaApi.on('select', onSelect)
     emblaApi.on('reInit', onSelect)
   }, [emblaApi, onSelect])
+
+  useEffect(() => {
+    if (selectedIndex >= images.length) {
+      setSelectedIndex(0)
+    }
+    if (emblaApi) {
+      emblaApi.reInit()
+    }
+  }, [images, emblaApi, selectedIndex])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -95,10 +123,10 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         
         <div className="overflow-hidden h-full" ref={emblaRef}>
           <div className="flex h-full touch-pan-y">
-            {project.images.map((img, index) => (
+            {images.map((img, index) => (
               <div 
                 className="relative flex-[0_0_100%] min-w-0 h-full cursor-zoom-in" 
-                key={index}
+                key={`${img}-${index}`}
                 onClick={() => setIsLightboxOpen(true)}
               >
                 {/* Blurred Background to fill empty space */}
@@ -129,7 +157,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         </div>
 
         {/* Carousel Navigation Arrows */}
-        {project.images.length > 1 && (
+        {images.length > 1 && (
           <>
             <button
               onClick={scrollPrev}
@@ -148,7 +176,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 
             {/* Dots */}
             <div className="absolute bottom-3 left-1/2 z-30 flex -translate-x-1/2 gap-1.5 rounded-full bg-background/50 px-2 py-1 backdrop-blur-sm">
-              {project.images.map((_, index) => (
+              {images.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => scrollTo(index)}
@@ -252,7 +280,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               <X className="h-6 w-6" />
             </button>
 
-            {project.images.length > 1 && (
+            {images.length > 1 && (
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); scrollPrev(); }}
@@ -280,7 +308,8 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <Image
-                src={project.images[selectedIndex]}
+                key={images[selectedIndex] || images[0]}
+                src={images[selectedIndex] || images[0]}
                 alt={`Fullscreen ${project.title}`}
                 fill
                 className="object-contain"

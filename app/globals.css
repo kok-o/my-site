@@ -208,7 +208,7 @@
     -webkit-text-size-adjust: 100%;
     /* Scroll offset for fixed navbar */
     scroll-padding-top: 80px;
-    overflow-y: overlay;
+    scrollbar-gutter: stable;
   }
 
   body {

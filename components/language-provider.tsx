@@ -21,6 +21,11 @@ const messages: Record<Locale, Record<string, string>> = {
   kz: kzMessages,
 }
 
+const getIntlLocale = (loc: Locale): string => {
+  if (loc === 'kz') return 'kk'
+  return loc
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>('en')
   const [mounted, setMounted] = useState(false)
@@ -64,7 +69,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageContext.Provider value={{ locale, setLocale }}>
-      <ReactIntlProvider messages={messages[locale]} locale={locale} defaultLocale="en">
+      <ReactIntlProvider messages={messages[locale]} locale={getIntlLocale(locale)} defaultLocale="en">
         {children}
       </ReactIntlProvider>
     </LanguageContext.Provider>

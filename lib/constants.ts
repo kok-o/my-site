@@ -72,6 +72,18 @@ export const SOCIAL_LINKS: SocialLink[] = [
 // ---------------------------------------------------------------------------
 // Projects
 // ---------------------------------------------------------------------------
+export interface ProjectThemeImages {
+  dark: string[]
+  light: string[]
+}
+
+export interface ProjectLocalizedThemeImages {
+  en?: ProjectThemeImages
+  ru?: ProjectThemeImages
+  kz?: ProjectThemeImages
+  [key: string]: ProjectThemeImages | undefined
+}
+
 export interface Project {
   id: string
   title: string
@@ -79,6 +91,7 @@ export interface Project {
   longDescription?: string
   tags: string[]
   images: string[]
+  themeImages?: ProjectLocalizedThemeImages
   href?: string
   githubHref?: string
   featured: boolean
@@ -116,11 +129,55 @@ export const PROJECTS: Project[] = [
       'An AI assistant application built with Flutter, Firebase, and Gemini API for facilitating simple, intelligent conversations.',
     tags: ['Flutter', 'Dart', 'Firebase', 'Gemini API', 'OpenAI', 'Ollama'],
     images: [
-      '/projects/aimiky.png',
-      '/projects/aimiky - 2.png',
-      '/projects/aimiky - 3.png',
-      '/projects/aimiky - 4.png'
+      '/projects/aimiku/ai_miku1_ru_dark.png',
+      '/projects/aimiku/ai_miku2_ru_dark.png',
+      '/projects/aimiku/ai_miku3_ru_dark.png',
+      '/projects/aimiku/ai_miku4_ru_dark.png',
     ],
+    themeImages: {
+      en: {
+        dark: [
+          '/projects/aimiku/ai_miku1_en_dark.png',
+          '/projects/aimiku/ai_miku2_en_dark.png',
+          '/projects/aimiku/ai_miku3_en_dark.png',
+          '/projects/aimiku/ai_miku4_en_dark.png',
+        ],
+        light: [
+          '/projects/aimiku/ai_miku1_en_light.png',
+          '/projects/aimiku/ai_miku2_en_light.png',
+          '/projects/aimiku/ai_miku3_en_light.png',
+          '/projects/aimiku/ai_miku4_en_light.png',
+        ],
+      },
+      ru: {
+        dark: [
+          '/projects/aimiku/ai_miku1_ru_dark.png',
+          '/projects/aimiku/ai_miku2_ru_dark.png',
+          '/projects/aimiku/ai_miku3_ru_dark.png',
+          '/projects/aimiku/ai_miku4_ru_dark.png',
+        ],
+        light: [
+          '/projects/aimiku/ai_miku1_ru_light.png',
+          '/projects/aimiku/ai_miku2_ru_light.png',
+          '/projects/aimiku/ai_miku3_ru_light.png',
+          '/projects/aimiku/ai_miku4_ru_light.png',
+        ],
+      },
+      kz: {
+        dark: [
+          '/projects/aimiku/ai_miku1_ru_dark.png',
+          '/projects/aimiku/ai_miku2_ru_dark.png',
+          '/projects/aimiku/ai_miku3_ru_dark.png',
+          '/projects/aimiku/ai_miku4_ru_dark.png',
+        ],
+        light: [
+          '/projects/aimiku/ai_miku1_ru_light.png',
+          '/projects/aimiku/ai_miku2_ru_light.png',
+          '/projects/aimiku/ai_miku3_ru_light.png',
+          '/projects/aimiku/ai_miku4_ru_light.png',
+        ],
+      },
+    },
     href: 'https://futter-kurs.web.app/',
     githubHref: 'https://github.com/kok-o/ai-miky',
     featured: true,
