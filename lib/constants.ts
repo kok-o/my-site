@@ -251,12 +251,8 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
       { name: 'Next.js' },
       { name: 'TypeScript' },
       { name: 'JavaScript' },
-      { name: 'Flutter' },
-      { name: 'Dart' },
-      { name: 'Tailwind CSS' },
       { name: 'HTML5' },
       { name: 'CSS3' },
-      { name: 'Framer Motion' },
     ],
   },
   {
@@ -264,8 +260,6 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     skills: [
       { name: 'Node.js' },
       { name: 'Python' },
-      { name: 'C#' },
-      { name: 'FastAPI' },
       { name: 'REST API' },
       { name: 'PostgreSQL' },
       { name: 'Firebase' },
