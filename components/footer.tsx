@@ -5,8 +5,11 @@
 // lucide-react v1.21+ removed all brand icons. Inline SVG is the correct
 // approach per DEVELOPMENT_RULES.md (official brand assets, vector-only).
 
-import Link from 'next/link'
+import { TransitionLink as Link } from '@/components/transition-link'
+import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import { SITE_CONFIG, SOCIAL_LINKS, NAV_LINKS } from '@/lib/constants'
+import { brandFont } from '@/lib/brand-font'
 import { cn } from '@/lib/utils'
 import { useIntl } from 'react-intl'
 
@@ -27,6 +30,7 @@ const SOCIAL_ICONS: Record<string, React.ComponentType<IconProps>> = {
 // ---------------------------------------------------------------------------
 export function Footer() {
   const currentYear = new Date().getFullYear()
+  const pathname = usePathname()
   const intl = useIntl()
 
   return (
@@ -46,17 +50,20 @@ export function Footer() {
             <Link
               href="/"
               aria-label={`${SITE_CONFIG.name} — back to top`}
-              className="group flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
+              className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
             >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center select-none overflow-hidden rounded-md bg-black dark:bg-white transition-transform group-hover:scale-105">
-                <img src="/logo1.png" alt="Logo" className="hidden h-full w-full scale-110 object-contain dark:block" />
-                <img src="/logo2.png" alt="Logo" className="block h-full w-full scale-110 object-contain dark:hidden" />
+              <div
+                aria-hidden="true"
+                className="flex h-9 w-9 shrink-0 items-center justify-center select-none overflow-hidden rounded-md bg-black dark:bg-white"
+              >
+                <Image src="/logo1.png" width={36} height={36} alt="" className="hidden h-full w-full scale-110 object-contain dark:block" />
+                <Image src="/logo2.png" width={36} height={36} alt="" className="block h-full w-full scale-110 object-contain dark:hidden" />
               </div>
               <div className="flex flex-col items-start">
-                <span className="font-semibold text-foreground transition-colors group-hover:text-primary">
+                <span className={cn(brandFont.className, 'font-normal text-foreground')}>
                   {SITE_CONFIG.name}
                 </span>
-                <span className="text-xs text-muted-foreground transition-colors group-hover:text-foreground/70">
+                <span className="text-xs text-muted-foreground">
                   {SITE_CONFIG.role}
                 </span>
               </div>
@@ -68,8 +75,8 @@ export function Footer() {
             <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2" role="list">
               {NAV_LINKS.filter(link => link.label !== 'Contacts').map((link) => (
                 <li key={link.href}>
-                  <a
-                    href={link.href}
+                  <Link
+                    href={pathname === '/' ? link.href : `/${link.href}`}
                     className={cn(
                       'relative text-sm font-medium text-muted-foreground transition-colors duration-200',
                       'hover:text-foreground',
@@ -78,7 +85,7 @@ export function Footer() {
                     )}
                   >
                     {intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -115,25 +122,7 @@ export function Footer() {
         {/* Bottom — copyright */}
         <div className="mt-8 border-t border-border pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} {SITE_CONFIG.name}. {intl.formatMessage({ id: 'footer.builtWith' })}{' '}
-            <a
-              href="https://nextjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
-            >
-              Next.js
-            </a>
-            {' '}{intl.formatMessage({ id: 'footer.and' })}{' '}
-            <a
-              href="https://vercel.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground underline underline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
-            >
-              Vercel
-            </a>
-            .
+            &copy; {currentYear} {SITE_CONFIG.name}
           </p>
         </div>
       </div>

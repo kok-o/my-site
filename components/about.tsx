@@ -2,11 +2,12 @@
 
 // About section
 
-import { SITE_CONFIG, EXPERIENCE } from '@/lib/constants'
+import { EXPERIENCE } from '@/lib/constants'
 import { SectionHeading } from '@/components/section-heading'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import { cn } from '@/lib/utils'
 import { useIntl } from 'react-intl'
+import { OpenSource } from '@/components/open-source'
 
 export function About() {
   const intl = useIntl()
@@ -20,18 +21,15 @@ export function About() {
         description={intl.formatMessage({ id: 'about.description' })}
       />
 
-      <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
+      <div className="mt-12 grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-8">
         
         {/* Left Column — Philosophy / Bio */}
-        <div className="lg:col-span-5 relative">
-          <div className="sticky top-32 h-fit self-start flex flex-col gap-6">
+        <div className="relative lg:col-span-5 lg:sticky lg:top-32">
+          <ScrollReveal className="flex h-fit flex-col gap-6">
             <h3 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
               {intl.formatMessage({ id: 'about.philosophy' })}
             </h3>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
-              <p>
-                {intl.formatMessage({ id: 'hero.tagline' })}
-              </p>
               <p>
                 {intl.formatMessage({ id: 'about.description_main' })}
               </p>
@@ -40,18 +38,23 @@ export function About() {
               </p>
             </div>
 
-            {/* Stats / Highlights (Static for now, can be data-driven later) */}
+            {/* A conservative public contribution count, linked to accepted work. */}
             <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border/50 pt-6">
               <div>
-                <p className="text-3xl font-bold tracking-tighter text-foreground">10+</p>
-                <p className="mt-1 text-sm font-medium text-muted-foreground">{intl.formatMessage({ id: 'about.projectsShipped' })}</p>
+                <a
+                  href="https://github.com/MakazhanAlpamys/Soup/pulls?q=is%3Apr+author%3Akok-o+is%3Amerged"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-fit rounded-sm text-3xl font-bold tracking-tighter text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >80+</a>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">{intl.formatMessage({ id: 'about.contributions' })}</p>
               </div>
               <div>
                 <p className="text-3xl font-bold tracking-tighter text-foreground">2</p>
                 <p className="mt-1 text-sm font-medium text-muted-foreground">{intl.formatMessage({ id: 'about.internships' })}</p>
               </div>
             </div>
-          </div>
+          </ScrollReveal>
         </div>
 
         {/* Right Column — Experience Timeline */}
@@ -108,6 +111,7 @@ export function About() {
         </ScrollReveal>
 
       </div>
+      <OpenSource />
     </section>
   )
 }

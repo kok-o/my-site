@@ -8,10 +8,10 @@
 // ---------------------------------------------------------------------------
 export const SITE_CONFIG = {
   name: 'Nurkhan Esenbek',
-  role: 'Frontend Developer',
-  tagline: 'Building modern web applications with a focus on code quality, performance, and user experience.',
+  role: 'Software Engineer',
+  tagline: 'Python services, AI developer tools, and web interfaces.',
   description:
-    'I am a Frontend Developer specializing in React, Next.js, and TypeScript. I love creating intuitive, fast, and responsive interfaces that not only look good but also solve real user problems.',
+    'Software Engineer building Python services and AI developer tools, contributing to Soup and Stroq, and creating interfaces with React and Next.js.',
   email: 'esenbeknrhan2@gmail.com',
   availableForWork: true,
 } as const
@@ -20,10 +20,10 @@ export const SITE_CONFIG = {
 // SEO / Metadata
 // ---------------------------------------------------------------------------
 export const SITE_METADATA = {
-  title: `${SITE_CONFIG.name} — ${SITE_CONFIG.role}`,
+  title: `${SITE_CONFIG.name} | ${SITE_CONFIG.role}`,
   description: SITE_CONFIG.description,
-  url: 'https://my-site-tau-plum.vercel.app',
-  ogImage: '/og-image.png',
+  url: 'https://nurkhan.space',
+  ogImage: '/opengraph-image',
   twitterHandle: undefined as string | undefined,
 } as const
 
@@ -59,7 +59,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     platform: 'LinkedIn',
-    href: 'https://linkedin.com/in/nurkhan-esenbek-9b9979419',
+    href: 'https://www.linkedin.com/in/nurkhan-esenbek/',
     ariaLabel: 'View LinkedIn profile',
   },
   {
@@ -100,10 +100,44 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
+    id: 'contextos',
+    title: 'ContextOS',
+    description: 'A Node.js CLI for maintaining coding-agent rules, exporting tool configurations, and checking for outdated exports in CI.',
+    tags: ['Node.js', 'JavaScript', 'CLI', 'GitHub Actions', 'MCP'],
+    images: ['/projects/contextos/cli-demo.png'],
+    githubHref: 'https://github.com/kok-o/contextos-agents',
+    featured: true,
+    year: 2026,
+  },
+  {
+    id: 'story-forecaster',
+    title: 'Story Forecaster',
+    description: 'A Python API for story forecasting with BM25 retrieval, chapter cutoffs, isolated continuation branches, and validated story-state changes.',
+    tags: ['Python', 'FastAPI', 'SQLite', 'BM25', 'Gemini API'],
+    images: ['/projects/story-forecaster/workflow-en-dark.png'],
+    themeImages: {
+      en: {
+        dark: ['/projects/story-forecaster/workflow-en-dark.png'],
+        light: ['/projects/story-forecaster/workflow-en-light.png'],
+      },
+      ru: {
+        dark: ['/projects/story-forecaster/workflow-ru-dark.png'],
+        light: ['/projects/story-forecaster/workflow-ru-light.png'],
+      },
+      kz: {
+        dark: ['/projects/story-forecaster/workflow-kz-dark.png'],
+        light: ['/projects/story-forecaster/workflow-kz-light.png'],
+      },
+    },
+    githubHref: 'https://github.com/kok-o/story-forecaster',
+    featured: true,
+    year: 2026,
+  },
+  {
     id: 'code-ai',
     title: 'CodeAi',
     description:
-      'A comprehensive graduation project combining programming courses, interactive problem-solving, an in-browser IDE, and an AI chat assistant.',
+      'A graduation project with programming courses, exercises, a browser code editor, and an AI chat.',
     tags: ['React.js', 'Vite', 'Node.js', 'Express.js', 'Monaco Editor', 'Ollama'],
     images: [
       '/projects/codeai/ai_code1_ru_dark.png',
@@ -171,7 +205,7 @@ export const PROJECTS: Project[] = [
     id: 'ai-miky',
     title: 'AI Miky',
     description:
-      'An AI assistant application built with Flutter, Firebase, and Gemini API for facilitating simple, intelligent conversations.',
+      'An AI chat app built with Flutter, Firebase, and Gemini API, with a profile and settings.',
     tags: ['Flutter', 'Dart', 'Firebase', 'Gemini API', 'OpenAI', 'Ollama'],
     images: [
       '/projects/aimiku/ai_miku1_ru_dark.png',
@@ -233,59 +267,22 @@ export const PROJECTS: Project[] = [
 // ---------------------------------------------------------------------------
 // Skills
 // ---------------------------------------------------------------------------
-export interface SkillCategory {
-  category: string
-  skills: Skill[]
-}
-
 export interface Skill {
   name: string
   icon?: string
 }
 
-export const SKILL_CATEGORIES: SkillCategory[] = [
-  {
-    category: 'Frontend',
-    skills: [
-      { name: 'React' },
-      { name: 'Next.js' },
-      { name: 'TypeScript' },
-      { name: 'JavaScript' },
-      { name: 'HTML5' },
-      { name: 'CSS3' },
-    ],
-  },
-  {
-    category: 'Backend',
-    skills: [
-      { name: 'Node.js' },
-      { name: 'Python' },
-      { name: 'REST API' },
-      { name: 'PostgreSQL' },
-      { name: 'Firebase' },
-      { name: 'Docker' },
-    ],
-  },
-  {
-    category: 'AI',
-    skills: [
-      { name: 'OpenAI API' },
-      { name: 'Gemini API' },
-      { name: 'Ollama' },
-      { name: 'Prompt Engineering' },
-    ],
-  },
-  {
-    category: 'Tools',
-    skills: [
-      { name: 'Git' },
-      { name: 'GitHub' },
-      { name: 'Figma' },
-      { name: 'Postman' },
-      { name: 'Vercel' },
-      { name: 'VS Code' },
-    ],
-  },
+export const SKILLS: Skill[] = [
+  { name: 'Python', icon: '/skills/python.svg' },
+  { name: 'PyTorch', icon: '/skills/pytorch.svg' },
+  { name: 'Transformers / TRL', icon: '/skills/huggingface.svg' },
+  { name: 'FastAPI', icon: '/skills/fastapi.svg' },
+  { name: 'pytest', icon: '/skills/pytest.svg' },
+  { name: 'TypeScript', icon: '/skills/typescript.svg' },
+  { name: 'Node.js', icon: '/skills/nodedotjs.svg' },
+  { name: 'React', icon: '/skills/react.svg' },
+  { name: 'Next.js', icon: '/skills/nextdotjs.svg' },
+  { name: 'Git', icon: '/skills/git.svg' },
 ]
 
 // ---------------------------------------------------------------------------
@@ -306,7 +303,7 @@ export const EXPERIENCE: Experience[] = [
     id: 'exp-iqadam',
     company: 'iQadam Systems',
     role: 'Frontend Developer Intern',
-    period: 'Oct 2025 — Nov 2025',
+    period: 'Oct - Nov 2025',
     description:
       'Participated in the development of web applications as part of a team, implementing user interfaces and integrating with the backend.',
     highlights: [
@@ -320,9 +317,9 @@ export const EXPERIENCE: Experience[] = [
   },
   {
     id: 'exp-spacelab',
-    company: 'SpaceLab',
+    company: 'SpaceLab LTD',
     role: 'Assistant Programmer / Web Designer',
-    period: 'May 2025 — Jun 2025',
+    period: 'May - Jun 2025',
     description:
       'Participated in designing user interfaces and preparing designs for development.',
     highlights: [

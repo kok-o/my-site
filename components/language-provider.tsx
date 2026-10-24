@@ -1,85 +1,52 @@
 'use client'
-
-import React, { createContext, useContext, useState, useEffect } from 'react'
-import { IntlProvider as ReactIntlProvider } from 'react-intl'
+import { createContext, useContext, useEffect, useSyncExternalStore } from 'react'
+import { IntlProvider } from 'react-intl'
 import enMessages from '@/locales/en.json'
 import ruMessages from '@/locales/ru.json'
 import kzMessages from '@/locales/kz.json'
 
-type Locale = 'en' | 'ru' | 'kz'
-
-interface LanguageContextType {
-  locale: Locale
-  setLocale: (locale: Locale) => void
-}
-
+export type Locale = 'en' | 'ru' | 'kz'
+interface LanguageContextType { locale: Locale; setLocale: (locale: Locale) => void }
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
+const messages = { en: enMessages, ru: ruMessages, kz: kzMessages }
+let sessionLocale: Locale | undefined
 
-const messages: Record<Locale, Record<string, string>> = {
-  en: enMessages,
-  ru: ruMessages,
-  kz: kzMessages,
+function getLocale(): Locale {
+  try {
+    const saved = localStorage.getItem('locale')
+    if (saved === 'en' || saved === 'ru' || saved === 'kz') return saved
+  } catch { /* Storage may be disabled; retain the in-session preference. */ }
+  if (sessionLocale) return sessionLocale
+  const language = navigator.language.split('-')[0]
+  return language === 'ru' ? 'ru' : language === 'kk' || language === 'kz' ? 'kz' : 'en'
 }
-
-const getIntlLocale = (loc: Locale): string => {
-  if (loc === 'kz') return 'kk'
-  return loc
+function subscribe(callback: () => void) {
+  window.addEventListener('storage', callback)
+  window.addEventListener('portfolio-locale', callback)
+  return () => {
+    window.removeEventListener('storage', callback)
+    window.removeEventListener('portfolio-locale', callback)
+  }
 }
+function setLocale(locale: Locale) {
+  sessionLocale = locale
+  try { localStorage.setItem('locale', locale) } catch { /* The session still works. */ }
+  window.dispatchEvent(new Event('portfolio-locale'))
+}
+const serverLocale = (): Locale => 'en'
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    // Load locale from localStorage if available
-    const savedLocale = localStorage.getItem('locale') as Locale
-    if (savedLocale && (savedLocale === 'en' || savedLocale === 'ru' || savedLocale === 'kz')) {
-      setLocaleState(savedLocale)
-    } else {
-      // Try to detect browser language
-      const browserLang = navigator.language.split('-')[0]
-      if (browserLang === 'ru') {
-        setLocaleState('ru')
-      } else if (browserLang === 'kk' || browserLang === 'kz') {
-        setLocaleState('kz')
-      }
-    }
-    setMounted(true)
-  }, [])
-
-  const setLocale = (newLocale: Locale) => {
-    setLocaleState(newLocale)
-    localStorage.setItem('locale', newLocale)
-  }
-
-  // To prevent hydration errors, we can either delay rendering or just render with default 'en'
-  // react-intl doesn't cause severe hydration errors if the text is wrapped in suppressHydrationWarning
-  // However, it's safer to just provide the context and let it render.
-  
-  if (!mounted) {
-    // Return with default 'en' during SSR to match the initial render
-    return (
-      <LanguageContext.Provider value={{ locale: 'en', setLocale }}>
-        <ReactIntlProvider messages={messages.en} locale="en" defaultLocale="en">
-          {children}
-        </ReactIntlProvider>
-      </LanguageContext.Provider>
-    )
-  }
-
+  const locale = useSyncExternalStore(subscribe, getLocale, serverLocale)
+  const intlLocale = locale === 'kz' ? 'kk' : locale
+  useEffect(() => { document.documentElement.lang = intlLocale }, [intlLocale])
   return (
     <LanguageContext.Provider value={{ locale, setLocale }}>
-      <ReactIntlProvider messages={messages[locale]} locale={getIntlLocale(locale)} defaultLocale="en">
-        {children}
-      </ReactIntlProvider>
+      <IntlProvider messages={messages[locale]} locale={intlLocale} defaultLocale="en">{children}</IntlProvider>
     </LanguageContext.Provider>
   )
 }
-
 export function useLanguage() {
   const context = useContext(LanguageContext)
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider')
-  }
+  if (!context) throw new Error('useLanguage must be used within a LanguageProvider')
   return context
 }

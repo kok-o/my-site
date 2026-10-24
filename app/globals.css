@@ -74,6 +74,8 @@
    PRIMITIVE TOKENS — raw design values
    ============================================================ */
 :root {
+  /* Fixed 64px navigation plus a 16px gap above anchored content. */
+  --anchor-offset: 5rem;
   /* --- Accent primitives (blue→violet signature gradient) --- */
   --accent-blue:   oklch(0.623 0.214 259);   /* ≈ #5E6AD2 — Linear indigo  */
   --accent-violet: oklch(0.541 0.281 293);   /* ≈ #8B5CF6 — gradient end   */
@@ -207,8 +209,7 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     /* Scroll offset for fixed navbar */
-    scroll-padding-top: 80px;
-    scrollbar-gutter: stable;
+    scroll-padding-top: var(--anchor-offset);
   }
 
   body {
@@ -329,6 +330,148 @@
 
   /* Section vertical spacing */
   .section-spacing {
-    @apply py-24 md:py-32;
+    --section-padding: 6rem;
+    padding-block: var(--section-padding);
+    /* Anchor the visible content, excluding the section's layout padding. */
+    scroll-margin-top: calc(-1 * var(--section-padding));
+
+    @media (width >= 48rem) {
+      --section-padding: 8rem;
+    }
+  }
+
+  #skills.section-spacing {
+    min-height: calc(100svh - var(--anchor-offset));
+
+    @media (width >= 64rem) {
+      /* Center the heading and cards together in the area below navigation. */
+      --section-padding: 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      scroll-margin-top: 0;
+
+      &[data-focused-skill] {
+        justify-content: flex-start;
+        padding-top: var(--skill-heading-offset, 4rem);
+      }
+    }
+  }
+
+  #contact.section-spacing {
+    /* Let the last card and footer share the viewport without an empty tail. */
+    padding-bottom: 3rem;
+  }
+}
+
+.skill-work-target {
+  scroll-margin-top: 1.5rem;
+  outline: 2px solid transparent;
+  outline-offset: 4px;
+}
+
+.skill-work-target:target {
+  animation: skill-work-highlight 2s var(--ease-out-expo);
+}
+
+.skill-work-target:focus-visible {
+  outline-color: var(--primary);
+}
+
+@keyframes skill-work-highlight {
+  0%, 70% { outline-color: var(--primary); }
+  100% { outline-color: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skill-work-target:target {
+    animation: none;
+    outline-color: var(--primary);
+  }
+}
+
+/* Viewport snapshots keep transitions correct even when leaving a long page
+   halfway down. Persistent navigation and footer are separate, stable layers. */
+header[role="banner"] {
+  view-transition-name: site-navigation;
+}
+
+footer[role="contentinfo"] {
+  view-transition-name: site-footer;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  animation: route-leave var(--duration-normal) var(--ease-out-expo) both;
+}
+
+::view-transition-new(root) {
+  animation: route-enter var(--duration-slow) var(--ease-out-expo) both;
+}
+
+::view-transition-group(site-navigation),
+::view-transition-group(site-footer),
+::view-transition-old(site-navigation),
+::view-transition-new(site-navigation),
+::view-transition-old(site-footer),
+::view-transition-new(site-footer) {
+  animation: none;
+}
+
+@keyframes route-leave {
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes route-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Theme changes use one viewport snapshot, including the fixed chrome. */
+html[data-theme-transition] header[role="banner"],
+html[data-theme-transition] footer[role="contentinfo"] {
+  view-transition-name: none;
+}
+
+html[data-theme-transition],
+html[data-theme-transition] *,
+html[data-theme-transition] *::before,
+html[data-theme-transition] *::after {
+  transition: none !important;
+}
+
+html[data-theme-transition]::view-transition {
+  pointer-events: none;
+}
+
+html[data-theme-transition]::view-transition-group(root),
+html[data-theme-transition]::view-transition-old(root),
+html[data-theme-transition]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-theme-transition]::view-transition-image-pair(root) {
+  isolation: auto;
+}
+
+html[data-theme-transition="light"]::view-transition-new(root),
+html[data-theme-transition="dark"]::view-transition-old(root) {
+  z-index: 2;
+}
+
+html[data-theme-transition="light"]::view-transition-old(root),
+html[data-theme-transition="dark"]::view-transition-new(root) {
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 }

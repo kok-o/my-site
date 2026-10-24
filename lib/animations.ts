@@ -26,6 +26,12 @@ export const EASE_OUT_FAST: Transition = {
   ease: [0.16, 1, 0.3, 1],
 }
 
+/** Deliberate stack movement: a softer start and finish, at the user's preferred pace. */
+export const STACK_FOCUS_TRANSITION: Transition = {
+  duration: 0.4,
+  ease: [0.77, 0, 0.175, 1],
+}
+
 // ---------------------------------------------------------------------------
 // Entrance Animations (scroll-triggered)
 // ---------------------------------------------------------------------------

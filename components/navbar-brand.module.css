@@ -1,0 +1,55 @@
+.header {
+  /* Glass keeps a bottom rule without changing the navigation's inner width. */
+  border-top-width: 0;
+  border-inline-width: 0;
+}
+
+.brand {
+  /* Keep the slot stable so revealing the name never moves navigation. */
+  display: inline-flex;
+  align-items: baseline;
+  height: 2.75rem;
+  min-width: 0;
+  padding-block: 0.5rem;
+  white-space: nowrap;
+  font-size: 1.125rem;
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1.75rem;
+  letter-spacing: -0.025em;
+  user-select: none;
+}
+
+.initial {
+  display: block;
+  flex-shrink: 0;
+}
+
+.wordmark {
+  display: block;
+  overflow: hidden;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  /* A steady exit keeps clipping and fading from removing the name at once. */
+  transition:
+    opacity calc(var(--duration-normal) * 2) linear,
+    clip-path calc(var(--duration-normal) * 2) linear;
+}
+
+.brand[data-wordmark-visible='true'] .wordmark {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+  transition-timing-function: var(--ease-out-expo);
+}
+
+@media (width >= 40rem) {
+  .brand {
+    font-size: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmark {
+    transition: none;
+  }
+}

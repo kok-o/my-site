@@ -1,12 +1,14 @@
 'use client'
 
-import { useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useScroll, useTransform } from 'framer-motion'
+import { useReducedMotion } from '@/lib/use-reduced-motion'
 import { motion } from 'framer-motion'
 import { ArrowRight, ChevronDown } from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { heroStagger, fadeInUp, slideInLeft } from '@/lib/animations'
 import { useIntl } from 'react-intl'
+import { TransitionLink } from '@/components/transition-link'
 
 export function Hero() {
   const shouldReduceMotion = useReducedMotion()
@@ -25,6 +27,7 @@ export function Hero() {
     >
       {/* Background Effects */}
       <motion.div
+        key={shouldReduceMotion ? 'static-background' : 'animated-background'}
         className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
         style={shouldReduceMotion ? undefined : { y: glowY }}
         aria-hidden="true"
@@ -55,6 +58,7 @@ export function Hero() {
 
       {/* Main Content */}
       <motion.div
+        key={shouldReduceMotion ? 'static-content' : 'animated-content'}
         className="section-container relative z-10 w-full text-center"
         style={shouldReduceMotion ? undefined : { y: contentY, opacity: contentOpacity }}
       >
@@ -108,7 +112,7 @@ export function Hero() {
             variants={shouldReduceMotion ? undefined : slideInLeft}
             className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
           >
-            <a
+            <TransitionLink
               href="#projects"
               className={cn(
                 'group relative inline-flex h-11 items-center justify-center gap-2 overflow-hidden rounded-md px-7 text-sm font-medium text-primary-foreground',
@@ -121,28 +125,28 @@ export function Hero() {
               </div>
               {intl.formatMessage({ id: 'hero.viewProjects' })}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </a>
+            </TransitionLink>
           </motion.div>
         </motion.div>
       </motion.div>
 
-      {/* Scroll Indicator */}
+      {/* CSS also hides the indicator before the motion preference hydrates. */}
       {!shouldReduceMotion && (
-        <motion.a
-          href="#projects"
-          aria-label="Scroll to projects"
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-muted-foreground/50 transition-colors hover:text-muted-foreground motion-reduce:hidden"
         >
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-          >
-            <ChevronDown className="h-5 w-5" />
-          </motion.div>
-        </motion.a>
+          <TransitionLink href="#projects" aria-label="Scroll to projects" className="flex items-center justify-center">
+            <motion.div
+              animate={shouldReduceMotion ? undefined : { y: [0, 6, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <ChevronDown className="h-5 w-5" />
+            </motion.div>
+          </TransitionLink>
+        </motion.div>
       )}
     </section>
   )

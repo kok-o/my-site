@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored ContextOS agent runtime is maintained separately from this app.
+    ".agents/**",
   ]),
 ]);
 

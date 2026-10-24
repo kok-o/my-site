@@ -13,16 +13,21 @@ export function Projects() {
   const intl = useIntl()
 
   return (
-    <section id="projects" className="section-spacing section-container">
+    <section
+      id="projects"
+      aria-labelledby="projects-heading"
+      className="section-spacing section-container"
+    >
       <SectionHeading
         id="projects-heading"
         eyebrow={intl.formatMessage({ id: 'projects.eyebrow' })}
         heading={intl.formatMessage({ id: 'projects.heading' })}
         description={intl.formatMessage({ id: 'projects.description' })}
+        className="mb-8"
       />
 
       {/* Grid of projects with staggered reveal animation */}
-      <ScrollReveal stagger className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
+      <ScrollReveal stagger className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
         {PROJECTS.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}

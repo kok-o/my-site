@@ -12,19 +12,22 @@ export function Contact() {
   const [copied, setCopied] = useState(false)
   const intl = useIntl()
 
-  const handleContactClick = () => {
-    // Copy to clipboard as a fallback
-    navigator.clipboard.writeText(SITE_CONFIG.email)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 3000)
-    // The native mailto: link will execute automatically since we didn't call preventDefault()
+  const handleContactClick = async () => {
+    // Keep the mailto link working even when clipboard access is unavailable.
+    try {
+      await navigator.clipboard.writeText(SITE_CONFIG.email)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 3000)
+    } catch {
+      setCopied(false)
+    }
   }
 
   return (
     <section id="contact" className="section-spacing section-container">
       <ScrollReveal>
         <div className={cn(
-          'relative flex flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
+          'relative flex min-h-[50svh] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
           'border border-border/50 bg-card/50 shadow-lg backdrop-blur-md',
         )}>
           {/* Subtle background glow */}

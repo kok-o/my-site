@@ -1,6 +1,6 @@
 'use client'
 
-import { useLanguage } from '@/components/language-provider'
+import { useLanguage, type Locale } from '@/components/language-provider'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -23,7 +23,7 @@ export function LanguageSwitcher() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup value={locale} onValueChange={(value) => setLocale(value as any)}>
+        <DropdownMenuRadioGroup value={locale} onValueChange={(value) => setLocale(value as Locale)}>
           <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="ru">Русский</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="kz">Қазақша</DropdownMenuRadioItem>

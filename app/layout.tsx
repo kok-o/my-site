@@ -1,6 +1,6 @@
 // Root layout — Server Component
-// Wraps the entire application with fonts, metadata, and the ThemeProvider.
-// The layout itself stays a Server Component; only Providers is Client.
+// Wraps the application with fonts, metadata, themes, and route transitions.
+// The layout stays a Server Component; interactive providers stay at the edge.
 
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -8,6 +8,8 @@ import { Providers } from '@/components/providers'
 import { Navbar } from '@/components/navbar'
 import { Footer } from '@/components/footer'
 import { SITE_METADATA } from '@/lib/constants'
+import { ViewTransitions } from 'next-view-transitions'
+import { ScrollRestoration } from '@/components/scroll-restoration'
 import './globals.css'
 
 // ---------------------------------------------------------------------------
@@ -31,10 +33,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: SITE_METADATA.title,
-    template: `%s — ${SITE_METADATA.title}`,
+    template: `%s | ${SITE_METADATA.title}`,
   },
   description: SITE_METADATA.description,
   metadataBase: new URL(SITE_METADATA.url),
+  alternates: { canonical: SITE_METADATA.url },
   openGraph: {
     title: SITE_METADATA.title,
     description: SITE_METADATA.description,
@@ -74,30 +77,34 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
-      suppressHydrationWarning
-    >
-      <body className="relative flex min-h-full flex-col antialiased">
-        <Providers>
-          {/* Skip to main content — keyboard accessibility */}
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:no-underline"
-          >
-            Skip to main content
-          </a>
+    <ViewTransitions>
+      <html
+        lang="en"
+        data-scroll-behavior="smooth"
+        className={`${geistSans.variable} ${geistMono.variable} h-full`}
+        suppressHydrationWarning
+      >
+        <body className="relative flex min-h-full flex-col antialiased">
+          <Providers>
+            <ScrollRestoration />
+            {/* Skip to main content — keyboard accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:no-underline"
+            >
+              Skip to main content
+            </a>
 
-          <Navbar />
+            <Navbar />
 
-          <main id="main-content" className="flex-1">
-            {children}
-          </main>
+            <main id="main-content" className="page-content flex-1">
+              {children}
+            </main>
 
-          <Footer />
-        </Providers>
-      </body>
-    </html>
+            <Footer />
+          </Providers>
+        </body>
+      </html>
+    </ViewTransitions>
   )
 }

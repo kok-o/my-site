@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675">
+        <rect width="1200" height="675" fill="#ffffff" />
+        <g font-family="Arial, sans-serif">
+          <text x="64" y="118" fill="#6b6b6b" font-size="19">Python / FastAPI / SQLite</text>
+          <text x="64" y="219" fill="#171717" font-size="70" font-weight="700" letter-spacing="-2">Story Forecaster</text>
+          <text x="64" y="273" fill="#6b6b6b" font-size="27">Контекст истории перед следующей главой.</text>
+          <rect x="64" y="348" width="232" height="130" rx="16" fill="#f9f9f9" stroke="#dedede" />
+          <text x="88" y="399" fill="#171717" font-size="25" font-weight="600">Главы</text>
+          <text x="88" y="437" fill="#6b6b6b" font-size="15">до выбранной границы</text>
+          <path d="M 308 413 h 25 m -6 -5 6 5 -6 5" fill="none" stroke="#6b6b6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><rect x="344" y="348" width="232" height="130" rx="16" fill="#f9f9f9" stroke="#dedede" />
+          <text x="368" y="399" fill="#171717" font-size="25" font-weight="600">Поиск BM25</text>
+          <text x="368" y="437" fill="#6b6b6b" font-size="15">нужные фрагменты</text>
+          <path d="M 588 413 h 25 m -6 -5 6 5 -6 5" fill="none" stroke="#6b6b6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><rect x="624" y="348" width="232" height="130" rx="16" fill="#f9f9f9" stroke="#dedede" />
+          <text x="648" y="399" fill="#171717" font-size="25" font-weight="600">Модель</text>
+          <text x="648" y="437" fill="#6b6b6b" font-size="15">контекст и запрос</text>
+          <path d="M 868 413 h 25 m -6 -5 6 5 -6 5" fill="none" stroke="#6b6b6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /><rect x="904" y="348" width="232" height="130" rx="16" fill="#f9f9f9" stroke="#dedede" />
+          <text x="928" y="399" fill="#171717" font-size="25" font-weight="600">Ветка</text>
+          <text x="928" y="437" fill="#6b6b6b" font-size="15">проверка изменений</text>
+
+          <path d="M 64 558 H 1136" stroke="#dedede" />
+          <text x="64" y="600" fill="#6b6b6b" font-size="17">Схема работы</text>
+          <text x="1136" y="600" text-anchor="end" fill="#6b6b6b" font-size="17">github.com/kok-o/story-forecaster</text>
+        </g>
+      </svg>

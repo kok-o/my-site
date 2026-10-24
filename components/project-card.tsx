@@ -1,8 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
-import { ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useReducedMotion } from '@/lib/use-reduced-motion'
+import { FileText, ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { GitHubIcon } from '@/components/icons'
 import { type Project } from '@/lib/constants'
@@ -11,24 +12,27 @@ import { fadeInUp } from '@/lib/animations'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/components/language-provider'
 import useEmblaCarousel from 'embla-carousel-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import { useIntl } from 'react-intl'
+import { TransitionLink } from '@/components/transition-link'
 
 interface ProjectCardProps {
   project: Project
   className?: string
 }
 
+const subscribeToHydration = () => () => {}
+const hydratedSnapshot = () => true
+const serverSnapshot = () => false
+
 export function ProjectCard({ project, className }: ProjectCardProps) {
   const shouldReduceMotion = useReducedMotion()
   const intl = useIntl()
   const { locale } = useLanguage()
   const { theme, resolvedTheme } = useTheme()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // Both SSR and the hydration render use dark images. Read the saved theme
+  // only after hydration, so next/image src and srcSet agree on the first render.
+  const mounted = useSyncExternalStore(subscribeToHydration, hydratedSnapshot, serverSnapshot)
 
   const currentTheme = (mounted ? (resolvedTheme || theme) : 'dark') === 'light' ? 'light' : 'dark'
 
@@ -69,19 +73,19 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 
   useEffect(() => {
     if (!emblaApi) return
-    onSelect()
     emblaApi.on('select', onSelect)
     emblaApi.on('reInit', onSelect)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
   }, [emblaApi, onSelect])
 
   useEffect(() => {
-    if (selectedIndex >= images.length) {
-      setSelectedIndex(0)
-    }
     if (emblaApi) {
       emblaApi.reInit()
     }
-  }, [images, emblaApi, selectedIndex])
+  }, [images, emblaApi])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -90,16 +94,21 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       if (e.key === 'ArrowRight' && isLightboxOpen) scrollNext()
     }
     
-    if (isLightboxOpen) {
-      window.addEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'unset'
+    if (!isLightboxOpen) return
+    const previousOverflow = document.body.style.overflow
+    const previousPaddingRight = document.body.style.paddingRight
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    if (scrollbarWidth > 0) {
+      const paddingRight = parseFloat(getComputedStyle(document.body).paddingRight) || 0
+      document.body.style.paddingRight = `${paddingRight + scrollbarWidth}px`
     }
+    window.addEventListener('keydown', handleKeyDown)
+    document.body.style.overflow = 'hidden'
     
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'unset'
+      document.body.style.overflow = previousOverflow
+      document.body.style.paddingRight = previousPaddingRight
     }
   }, [isLightboxOpen, scrollPrev, scrollNext])
 
@@ -135,6 +144,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                     src={img}
                     alt=""
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover opacity-40 blur-xl scale-110 saturate-150"
                     aria-hidden="true"
                   />
@@ -144,7 +154,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 <div className="absolute inset-0 z-10">
                   <Image
                     src={img}
-                    alt={`Screenshot ${index + 1} of ${project.title}`}
+                    alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-contain drop-shadow-2xl transition-transform duration-500"
@@ -200,7 +210,12 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-3 flex items-center justify-between gap-4">
           <h3 className="font-heading text-xl font-semibold tracking-tight">
-            {intl.formatMessage({ id: `project.${project.id}.title` })}
+            <TransitionLink
+              href={`/projects/${project.id}`}
+              className="rounded-sm transition-colors hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {intl.formatMessage({ id: `project.${project.id}.title` })}
+            </TransitionLink>
           </h3>
           <span className="shrink-0 text-sm font-medium text-muted-foreground">
             {project.year}
@@ -225,7 +240,18 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
           </ul>
 
           {/* Links */}
-          <div className="flex items-center gap-4 border-t border-border/50 pt-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-border/50 pt-4">
+            <TransitionLink
+              href={`/projects/${project.id}`}
+              className={cn(
+                'inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground',
+                'transition-colors hover:text-foreground',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
+              )}
+            >
+              <FileText className="h-4 w-4" aria-hidden="true" />
+              {intl.formatMessage({ id: 'project.details' })}
+            </TransitionLink>
             {project.githubHref && (
               <a
                 href={project.githubHref}
@@ -310,7 +336,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               <Image
                 key={images[selectedIndex] || images[0]}
                 src={images[selectedIndex] || images[0]}
-                alt={`Fullscreen ${project.title}`}
+                alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
                 fill
                 className="object-contain"
                 sizes="100vw"
