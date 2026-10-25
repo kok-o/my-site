@@ -1,5 +1,6 @@
 'use client'
 
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ArrowUpRight, BookOpen, Braces, ExternalLink, MessagesSquare, Settings2, SquareTerminal, UserRound } from 'lucide-react'
 import { useIntl } from 'react-intl'
 import { TransitionLink } from '@/components/transition-link'
@@ -7,6 +8,8 @@ import { ProjectGallery } from '@/components/project-gallery'
 import { GitHubIcon } from '@/components/icons'
 import { type Project, SITE_CONFIG } from '@/lib/constants'
 import { PROJECT_DETAILS, type ProjectFeatureIcon } from '@/lib/project-details'
+import { HERO_FADE_DISTANCE } from '@/lib/animations'
+import { useReducedMotion } from '@/lib/use-reduced-motion'
 
 const featureIcons = {
   book: BookOpen,
@@ -24,12 +27,22 @@ interface ProjectDetailProps {
 
 export function ProjectDetail({ project, nextProject }: ProjectDetailProps) {
   const intl = useIntl()
+  const shouldReduceMotion = useReducedMotion()
+  const { scrollY } = useScroll()
+  const introOpacity = useTransform(scrollY, [0, HERO_FADE_DISTANCE], [1, 0])
+  // Fully faded links must not remain invisible pointer targets. Keyboard
+  // focus restores the intro through focus-within, keeping both links usable.
+  const introPointerEvents = useTransform(introOpacity, (opacity) => opacity > 0 ? 'auto' : 'none')
   const details = PROJECT_DETAILS[project.id]
   const message = (suffix: string) => intl.formatMessage({ id: `project.${project.id}.detail.${suffix}` })
 
   return (
     <article className="section-container pb-8 pt-16">
-      <header className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-3xl flex-col justify-center py-12 text-center sm:py-16">
+      <motion.header
+        key={shouldReduceMotion ? 'static-intro' : 'animated-intro'}
+        style={shouldReduceMotion ? undefined : { opacity: introOpacity, pointerEvents: introPointerEvents }}
+        className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-3xl flex-col justify-center py-12 text-center focus-within:opacity-100! focus-within:pointer-events-auto! sm:py-16"
+      >
         <h1 className="font-heading text-5xl font-bold tracking-tight text-foreground min-[375px]:text-6xl sm:text-7xl lg:text-8xl">
           {project.title}.
         </h1>
@@ -70,7 +83,7 @@ export function ProjectDetail({ project, nextProject }: ProjectDetailProps) {
             </a>
           )}
         </div>
-      </header>
+      </motion.header>
 
       <ProjectGallery key={project.id} project={project} screens={details.screens} mediaType={details.mediaType} />
 

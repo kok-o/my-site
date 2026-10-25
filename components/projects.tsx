@@ -23,6 +23,7 @@ export function Projects() {
         eyebrow={intl.formatMessage({ id: 'projects.eyebrow' })}
         heading={intl.formatMessage({ id: 'projects.heading' })}
         description={intl.formatMessage({ id: 'projects.description' })}
+        align="center"
         className="mb-8"
       />
 

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, ChevronDown } from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { heroStagger, fadeInUp, slideInLeft } from '@/lib/animations'
+import { HERO_FADE_DISTANCE, heroStagger, fadeInUp, slideInLeft } from '@/lib/animations'
 import { useIntl } from 'react-intl'
 import { TransitionLink } from '@/components/transition-link'
 
@@ -17,7 +17,7 @@ export function Hero() {
   const { scrollY } = useScroll()
   const glowY = useTransform(scrollY, [0, 400], [0, -60])
   const contentY = useTransform(scrollY, [0, 400], [0, 40])
-  const contentOpacity = useTransform(scrollY, [0, 300], [1, 0])
+  const contentOpacity = useTransform(scrollY, [0, HERO_FADE_DISTANCE], [1, 0])
 
   return (
     <section

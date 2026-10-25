@@ -132,7 +132,7 @@ const SkillUsagePanel = forwardRef<HTMLDivElement, { technology: string; reduced
           id="skill-usage-panel"
           role="region"
           aria-labelledby="skill-usage-heading"
-          className="rounded-2xl border border-border/50 bg-card/50 p-5 sm:p-7"
+          className="rounded-2xl border border-surface-border bg-card/50 p-5 sm:p-7"
         >
           <h3 id="skill-usage-heading" className="font-heading text-xl font-semibold tracking-tight">
             {intl.formatMessage({ id: 'skills.whereUsed' }, { technology })}

@@ -57,7 +57,7 @@ export function Footer() {
                 className="flex h-9 w-9 shrink-0 items-center justify-center select-none overflow-hidden rounded-md bg-black dark:bg-white"
               >
                 <Image src="/logo1.png" width={36} height={36} alt="" className="hidden h-full w-full scale-110 object-contain dark:block" />
-                <Image src="/logo2.png" width={36} height={36} alt="" className="block h-full w-full scale-110 object-contain dark:hidden" />
+                <Image src="/logo2.png" width={36} height={36} alt="" className="block h-full w-full scale-110 object-contain grayscale dark:hidden" />
               </div>
               <div className="flex flex-col items-start">
                 <span className={cn(brandFont.className, 'font-normal text-foreground')}>

@@ -28,7 +28,7 @@ export function Contact() {
       <ScrollReveal>
         <div className={cn(
           'relative flex min-h-[50svh] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
-          'border border-border/50 bg-card/50 shadow-lg backdrop-blur-md',
+          'border border-surface-border bg-card/50 shadow-lg backdrop-blur-md',
         )}>
           {/* Subtle background glow */}
           <div className="absolute inset-0 -z-10 bg-[var(--gradient-glow)] opacity-50 mix-blend-screen" />

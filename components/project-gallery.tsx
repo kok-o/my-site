@@ -28,6 +28,9 @@ export function ProjectGallery({ project, screens, mediaType }: ProjectGalleryPr
   const { resolvedTheme } = useTheme()
   const mounted = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot)
   const theme = mounted && resolvedTheme === 'light' ? 'light' : 'dark'
+  const imageStyle = theme === 'light' && project.lightImageFilter
+    ? { filter: project.lightImageFilter }
+    : undefined
   const images = useMemo(() => getProjectImages(project, locale, theme), [project, locale, theme])
   const reduceMotion = useReducedMotion()
   const [viewportRef, carousel] = useEmblaCarousel({ loop: true, duration: reduceMotion ? 0 : 18 })
@@ -86,6 +89,7 @@ export function ProjectGallery({ project, screens, mediaType }: ProjectGalleryPr
                 fill
                 sizes="(max-width: 640px) calc(100vw - 48px), (max-width: 1024px) calc(100vw - 64px), 1100px"
                 className="object-contain"
+                style={imageStyle}
                 priority={index === 0}
               />
             </div>

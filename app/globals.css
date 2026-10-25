@@ -35,6 +35,7 @@
 
   /* Structural */
   --color-border: var(--border);
+  --color-surface-border: var(--surface-border);
   --color-input:  var(--input);
   --color-ring:   var(--ring);
 
@@ -76,7 +77,8 @@
 :root {
   /* Fixed 64px navigation plus a 16px gap above anchored content. */
   --anchor-offset: 5rem;
-  /* --- Accent primitives (blue→violet signature gradient) --- */
+  /* --- Accent primitives --- */
+  --accent-graphite: #202124;
   --accent-blue:   oklch(0.623 0.214 259);   /* ≈ #5E6AD2 — Linear indigo  */
   --accent-violet: oklch(0.541 0.281 293);   /* ≈ #8B5CF6 — gradient end   */
   --accent-cyan:   oklch(0.752 0.144 210);   /* ≈ #06B6D4 — subtle accent  */
@@ -118,24 +120,25 @@
   --card-foreground:     oklch(0.145 0 0);
   --popover:             oklch(1 0 0);
   --popover-foreground:  oklch(0.145 0 0);
-  --primary:             var(--accent-blue);
+  --primary:             var(--accent-graphite);
   --primary-foreground:  oklch(0.985 0 0);
   --secondary:           oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted:               oklch(0.97 0 0);
   --muted-foreground:    oklch(0.45 0 0);
-  --accent:              var(--accent-blue);
+  --accent:              var(--accent-graphite);
   --accent-foreground:   oklch(0.985 0 0);
   --destructive:         oklch(0.577 0.245 27.325);
   --border:              oklch(0 0 0 / 8%);
+  --surface-border:      oklch(0 0 0 / 10%);
   --input:               oklch(0 0 0 / 6%);
-  --ring:                var(--accent-blue);
+  --ring:                var(--accent-graphite);
   --radius: 0.625rem;
   --glass-bg:            oklch(1 0 0 / 60%);
   --glass-border:        oklch(0 0 0 / 12%);
 
   /* Charts */
-  --chart-1: var(--accent-blue);
+  --chart-1: var(--accent-graphite);
   --chart-2: var(--accent-violet);
   --chart-3: var(--accent-cyan);
   --chart-4: oklch(0.723 0.191 142);
@@ -144,12 +147,12 @@
   /* Sidebar */
   --sidebar:                    oklch(0.985 0 0);
   --sidebar-foreground:         oklch(0.145 0 0);
-  --sidebar-primary:            var(--accent-blue);
+  --sidebar-primary:            var(--accent-graphite);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent:             oklch(0.97 0 0);
   --sidebar-accent-foreground:  oklch(0.205 0 0);
   --sidebar-border:             oklch(0 0 0 / 8%);
-  --sidebar-ring:               var(--accent-blue);
+  --sidebar-ring:               var(--accent-graphite);
 }
 
 /* ============================================================
@@ -172,6 +175,7 @@
   --accent-foreground:   oklch(0.985 0 0);
   --destructive:         oklch(0.704 0.191 22.216);
   --border:              oklch(1 0 0 / 10%);
+  --surface-border:      color-mix(in oklab, var(--border) 50%, transparent);
   --input:               oklch(1 0 0 / 12%);
   --ring:                oklch(1 0 0 / 20%);
 
@@ -250,6 +254,10 @@
   ::selection {
     background: oklch(0.623 0.214 259 / 30%);
     color: var(--foreground);
+  }
+
+  :root:not(.dark) ::selection {
+    background: color-mix(in srgb, var(--accent-graphite) 30%, transparent);
   }
 
   /* Premium Scrollbar */
@@ -359,6 +367,8 @@
   }
 
   #contact.section-spacing {
+    /* Avoid stacking a large contact gap after the centered stack section. */
+    --section-padding: 2rem;
     /* Let the last card and footer share the viewport without an empty tail. */
     padding-bottom: 3rem;
   }

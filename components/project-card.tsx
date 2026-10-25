@@ -21,6 +21,39 @@ interface ProjectCardProps {
   className?: string
 }
 
+// Match the one/two-column grid, container padding and its 1200px cap.
+const PROJECT_PREVIEW_SIZES = '(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) calc((100vw - 72px) / 2), (max-width: 1199px) calc((100vw - 96px) / 2), 552px'
+const MOBILE_PREVIEW_SIZES = '(max-width: 639px) calc(26vw - 28px), (max-width: 1023px) calc(13vw - 29px), (max-width: 1199px) calc(13vw - 32px), 124px'
+
+function MobileProjectPreview({ images, index, alt }: { images: string[]; index: number; alt: string }) {
+  return (
+    <div className="absolute inset-0 flex items-center justify-center gap-4 px-4 pb-8 pt-2">
+      {[-1, 0, 1].map((offset) => {
+        const isMain = offset === 0
+        const source = images[(index + offset + images.length) % images.length]
+        return (
+          <div
+            key={offset}
+            aria-hidden={isMain ? undefined : true}
+            className={cn(
+              'relative aspect-[9/19.5] shrink-0 overflow-hidden rounded-xl border border-foreground/10 bg-background shadow-sm',
+              isMain ? 'z-10 h-full' : 'h-[88%] translate-y-2 opacity-80',
+            )}
+          >
+            <Image
+              src={source}
+              alt={isMain ? alt : ''}
+              fill
+              sizes={MOBILE_PREVIEW_SIZES}
+              className="object-contain"
+            />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 const subscribeToHydration = () => () => {}
 const hydratedSnapshot = () => true
 const serverSnapshot = () => false
@@ -35,6 +68,9 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
   const mounted = useSyncExternalStore(subscribeToHydration, hydratedSnapshot, serverSnapshot)
 
   const currentTheme = (mounted ? (resolvedTheme || theme) : 'dark') === 'light' ? 'light' : 'dark'
+  const imageStyle = currentTheme === 'light' && project.lightImageFilter
+    ? { filter: project.lightImageFilter }
+    : undefined
 
   // Resolve localized & theme-aware images
   const images = (() => {
@@ -118,7 +154,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       variants={shouldReduceMotion ? undefined : fadeInUp}
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-2xl',
-        'border border-border/50 bg-card/50 text-card-foreground shadow-sm',
+        'border border-surface-border bg-card/50 text-card-foreground shadow-sm',
         'backdrop-blur-md transition-colors duration-300',
         'hover:border-primary/30 hover:bg-card hover:shadow-glow',
         className,
@@ -127,8 +163,13 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       {/* ------------------------------------------------------------------- */}
       {/* Image Carousel Container */}
       {/* ------------------------------------------------------------------- */}
-      <div className="relative aspect-video w-full overflow-hidden border-b border-border/50 bg-black/20 group/carousel">
-        <div className="absolute inset-0 z-20 bg-background/10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
+      <div className={cn(
+        'relative aspect-video w-full overflow-hidden border-b border-border/50 group/carousel',
+        project.id === 'ai-miky' ? 'bg-secondary/30' : 'bg-black/20',
+      )}>
+        {project.id !== 'ai-miky' && (
+          <div className="absolute inset-0 z-20 bg-background/10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
+        )}
         
         <div className="overflow-hidden h-full" ref={emblaRef}>
           <div className="flex h-full touch-pan-y">
@@ -136,31 +177,45 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               <div 
                 className="relative flex-[0_0_100%] min-w-0 h-full cursor-zoom-in" 
                 key={`${img}-${index}`}
+                style={imageStyle}
                 onClick={() => setIsLightboxOpen(true)}
               >
-                {/* Blurred Background to fill empty space */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <Image
-                    src={img}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover opacity-40 blur-xl scale-110 saturate-150"
-                    aria-hidden="true"
-                  />
-                </div>
-                
-                {/* Main Image */}
-                <div className="absolute inset-0 z-10">
-                  <Image
-                    src={img}
+                {project.id === 'ai-miky' ? (
+                  <MobileProjectPreview
+                    images={images}
+                    index={index}
                     alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-contain drop-shadow-2xl transition-transform duration-500"
-                    priority={false}
                   />
-                </div>
+                ) : (
+                  <>
+                    {/* Contained previews need a backdrop; CodeAi covers it completely. */}
+                    {project.id !== 'code-ai' && <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                      <Image
+                        src={img}
+                        alt=""
+                        fill
+                        sizes={PROJECT_PREVIEW_SIZES}
+                        className="object-cover opacity-40 blur-xl scale-110 saturate-150"
+                        aria-hidden="true"
+                      />
+                    </div>}
+
+                    {/* Main Image */}
+                    <div className="absolute inset-0 z-10">
+                      <Image
+                        src={img}
+                        alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
+                        fill
+                        sizes={PROJECT_PREVIEW_SIZES}
+                        className={cn(
+                          'transition-transform duration-500',
+                          project.id === 'code-ai' ? 'object-cover' : 'object-contain drop-shadow-2xl',
+                        )}
+                        priority={false}
+                      />
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -339,6 +394,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
                 fill
                 className="object-contain"
+                style={imageStyle}
                 sizes="100vw"
                 priority
               />

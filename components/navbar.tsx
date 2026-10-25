@@ -18,6 +18,7 @@ import { useLanguage } from '@/components/language-provider'
 import { useIntl } from 'react-intl'
 import brandStyles from './navbar-brand.module.css'
 import {
+  HERO_FADE_DISTANCE,
   navbarEntrance,
   mobileMenuOverlay,
   mobileMenuItems,
@@ -60,6 +61,7 @@ function NavLinkItem({ href, label, onClick, className }: NavLinkItemProps) {
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [heroNameHidden, setHeroNameHidden] = useState(false)
+  const scrollState = useRef({ scrolled: false, heroNameHidden: false })
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const menuButtonRef = useRef<HTMLButtonElement>(null)
@@ -77,17 +79,33 @@ export function Navbar() {
 
     const update = () => {
       frame = 0
-      setScrolled(window.scrollY > 16)
-      if (pathname !== '/') return
+      const scrollTop = window.scrollY
+      const nextScrolled = scrollTop > 16
+      if (scrollState.current.scrolled !== nextScrolled) {
+        scrollState.current.scrolled = nextScrolled
+        setScrolled(nextScrolled)
+      }
+      if (!heading) return
+
+      const updateNameVisibility = (hidden: boolean) => {
+        if (scrollState.current.heroNameHidden === hidden) return
+        scrollState.current.heroNameHidden = hidden
+        setHeroNameHidden(hidden)
+      }
+
+      // Once the hero is fully transparent, scrolling the rest of the page
+      // needs no hero geometry or computed-style reads. Recheck on the way up.
+      if (!shouldReduceMotion && scrollTop >= HERO_FADE_DISTANCE) {
+        updateNameVisibility(true)
+        return
+      }
 
       // The hero fades before its layout box necessarily leaves a tall screen.
       // Follow its perceived visibility, with a small reversal threshold to
       // avoid flicker when a visitor stops scrolling at the hand-off point.
-      const title = document.getElementById('hero-heading')
-      if (!title) return
-      const bottom = title.getBoundingClientRect().bottom
+      const bottom = heading.getBoundingClientRect().bottom
       const opacity = shouldReduceMotion || !content ? 1 : Number(getComputedStyle(content).opacity)
-      setHeroNameHidden((wasHidden) => wasHidden
+      updateNameVisibility(scrollState.current.heroNameHidden
         ? bottom <= 96 || opacity <= 0.2
         : bottom <= 80 || opacity <= 0.1)
     }

@@ -92,6 +92,8 @@ export interface Project {
   tags: string[]
   images: string[]
   themeImages?: ProjectLocalizedThemeImages
+  /** Light-only treatment for monochrome captures without a separate light image. */
+  lightImageFilter?: string
   href?: string
   githubHref?: string
   featured: boolean
@@ -105,6 +107,7 @@ export const PROJECTS: Project[] = [
     description: 'A Node.js CLI for maintaining coding-agent rules, exporting tool configurations, and checking for outdated exports in CI.',
     tags: ['Node.js', 'JavaScript', 'CLI', 'GitHub Actions', 'MCP'],
     images: ['/projects/contextos/cli-demo.png'],
+    lightImageFilter: 'grayscale(1) invert(1)',
     githubHref: 'https://github.com/kok-o/contextos-agents',
     featured: true,
     year: 2026,

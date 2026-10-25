@@ -7,6 +7,9 @@
 
 import type { Variants, Transition } from 'framer-motion'
 
+/** Keep the hero fade and the header's visibility hand-off in sync. */
+export const HERO_FADE_DISTANCE = 300
+
 // ---------------------------------------------------------------------------
 // Shared Transitions
 // ---------------------------------------------------------------------------
