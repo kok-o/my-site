@@ -3,6 +3,7 @@
 import { ExternalLink } from 'lucide-react'
 import { useIntl } from 'react-intl'
 import { ScrollReveal } from '@/components/scroll-reveal'
+import { STROQ } from '@/lib/constants'
 
 const contributions = [
   {
@@ -21,11 +22,11 @@ const contributions = [
     id: 'stroq',
     name: 'Stroq',
     technologies: 'TypeScript, Node.js, MCP',
-    repository: 'https://github.com/AGGIB/Stroq',
-    changes: 'https://github.com/AGGIB/Stroq/pulls?q=is%3Apr+author%3Akok-o+is%3Amerged',
+    repository: STROQ.repository,
+    changes: `${STROQ.repository}/pulls?q=is%3Apr+author%3Akok-o+is%3Amerged`,
     highlights: [
       { pulls: [194, 195] },
-      { pulls: [257] },
+      { pulls: [STROQ.recoveryPull] },
     ],
   },
 ] as const
@@ -34,7 +35,7 @@ export function OpenSource() {
   const intl = useIntl()
 
   return (
-    <div className="mt-16 pt-12" aria-labelledby="open-source-heading">
+    <div className="mt-16 lg:mt-20" aria-labelledby="open-source-heading">
       <h3 id="open-source-heading" className="font-heading text-2xl font-semibold tracking-tight text-foreground">
         {intl.formatMessage({ id: 'contributions.heading' })}
       </h3>
@@ -66,7 +67,7 @@ export function OpenSource() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={`${project.name} PR #${pull}`}
-                        className="rounded-sm text-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="link-ink link-ink-rest rounded-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >#{pull}</a>
                     </span>
                   ))}
@@ -79,7 +80,7 @@ export function OpenSource() {
               rel="noopener noreferrer"
               className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-sm pt-6 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {intl.formatMessage({ id: 'contributions.viewChanges' })}
+              <span className="link-ink">{intl.formatMessage({ id: 'contributions.viewChanges' })}</span>
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
             </a>
           </article>

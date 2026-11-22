@@ -6,7 +6,6 @@
 import { PROJECTS } from '@/lib/constants'
 import { SectionHeading } from '@/components/section-heading'
 import { ProjectCard } from '@/components/project-card'
-import { ScrollReveal } from '@/components/scroll-reveal'
 import { useIntl } from 'react-intl'
 
 export function Projects() {
@@ -24,15 +23,15 @@ export function Projects() {
         heading={intl.formatMessage({ id: 'projects.heading' })}
         description={intl.formatMessage({ id: 'projects.description' })}
         align="center"
+        compact
         className="mb-8"
       />
 
-      {/* Grid of projects with staggered reveal animation */}
-      <ScrollReveal stagger className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-8">
         {PROJECTS.map((project) => (
           <ProjectCard key={project.id} project={project} />
         ))}
-      </ScrollReveal>
+      </div>
     </section>
   )
 }

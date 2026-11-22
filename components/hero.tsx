@@ -1,54 +1,75 @@
 'use client'
 
-import { useScroll, useTransform } from 'framer-motion'
-import { useReducedMotion } from '@/lib/use-reduced-motion'
-import { motion } from 'framer-motion'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { ArrowRight, ChevronDown } from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { HERO_FADE_DISTANCE, heroStagger, fadeInUp, slideInLeft } from '@/lib/animations'
+import { HERO_FADE_DISTANCE } from '@/lib/animations'
 import { useIntl } from 'react-intl'
 import { TransitionLink } from '@/components/transition-link'
+import { HeroGradientBackground } from '@/components/ui/elegant-dark-pattern'
+import styles from './hero.module.css'
+
+const PARALLAX_DISTANCE = 400
+const scrollRanges = {
+  '--hero-parallax-end': `${PARALLAX_DISTANCE}px`,
+  '--hero-fade-end': `${HERO_FADE_DISTANCE}px`,
+} as CSSProperties
 
 export function Hero() {
-  const shouldReduceMotion = useReducedMotion()
   const intl = useIntl()
+  const background = useRef<HTMLDivElement>(null)
+  const content = useRef<HTMLDivElement>(null)
 
-  const { scrollY } = useScroll()
-  const glowY = useTransform(scrollY, [0, 400], [0, -60])
-  const contentY = useTransform(scrollY, [0, 400], [0, 40])
-  const contentOpacity = useTransform(scrollY, [0, HERO_FADE_DISTANCE], [1, 0])
+  useEffect(() => {
+    if (CSS.supports('(animation-timeline: scroll(root block)) and (animation-range: 0px 400px)')) return
+    const backdrop = background.current
+    const foreground = content.current
+    if (!backdrop || !foreground) return
+    const motion = window.matchMedia('(prefers-reduced-motion: no-preference)')
+    let lastOffset = -1
+    const update = () => {
+      const offset = Math.max(0, Math.min(window.scrollY, PARALLAX_DISTANCE))
+      if (offset === lastOffset) return
+      lastOffset = offset
+      const progress = offset / PARALLAX_DISTANCE
+      backdrop.style.transform = `translateY(${-60 * progress}px)`
+      foreground.style.transform = `translateY(${40 * progress}px)`
+      foreground.style.opacity = String(Math.max(0, 1 - offset / HERO_FADE_DISTANCE))
+    }
+    const syncMotion = () => {
+      if (motion.matches) {
+        update()
+        window.addEventListener('scroll', update, { passive: true })
+      } else {
+        window.removeEventListener('scroll', update)
+        lastOffset = -1
+        backdrop.style.transform = foreground.style.transform = foreground.style.opacity = ''
+      }
+    }
+    syncMotion()
+    motion.addEventListener('change', syncMotion)
+    return () => {
+      window.removeEventListener('scroll', update)
+      motion.removeEventListener('change', syncMotion)
+    }
+  }, [])
 
   return (
     <section
       id="hero"
       aria-labelledby="hero-heading"
       className="relative flex min-h-[90vh] flex-col items-center justify-center pt-20"
+      style={scrollRanges}
     >
       {/* Background Effects */}
-      <motion.div
-        key={shouldReduceMotion ? 'static-background' : 'animated-background'}
-        className="absolute inset-0 -z-10 overflow-hidden pointer-events-none"
-        style={shouldReduceMotion ? undefined : { y: glowY }}
+      <div
+        ref={background}
+        className={cn(styles.backdrop, 'absolute inset-0 -z-10 overflow-hidden pointer-events-none')}
         aria-hidden="true"
       >
-        <div
-          className="absolute inset-0 bg-[length:24px_24px] opacity-20 dark:opacity-[0.08]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at center, var(--accent) 1px, transparent 1px)',
-            WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
-            maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)',
-          }}
-        />
-        {/* Ambient top glow */}
-        <div className="absolute top-0 left-1/2 -ml-[40vw] h-[50vh] w-[80vw] rounded-full bg-foreground/5 blur-[120px] dark:bg-foreground/10" />
-
-        {/* Secondary glow — bottom-left accent */}
-        <div className="absolute bottom-20 left-1/4 h-[30vh] w-[40vw] rounded-full bg-primary/5 blur-[100px]" />
-
-        {/* Bottom fade — bleeds OUTSIDE section for seamless transition */}
-      </motion.div>
+        <HeroGradientBackground />
+      </div>
 
       {/* Bottom fade — outside parallax so overflow-hidden doesn't clip it */}
       <div
@@ -57,59 +78,49 @@ export function Hero() {
       />
 
       {/* Main Content */}
-      <motion.div
-        key={shouldReduceMotion ? 'static-content' : 'animated-content'}
-        className="section-container relative z-10 w-full text-center"
-        style={shouldReduceMotion ? undefined : { y: contentY, opacity: contentOpacity }}
+      <div
+        ref={content}
+        className={cn(styles.content, 'section-container relative z-10 w-full text-center')}
       >
-        <motion.div
-          variants={shouldReduceMotion ? undefined : heroStagger}
-          initial="hidden"
-          animate="visible"
-          className="mx-auto flex max-w-4xl flex-col items-center justify-center gap-3"
+        <div
+          className={cn(styles.intro, 'mx-auto flex max-w-4xl flex-col items-center justify-center gap-3')}
         >
           {/* Name — primary, dominant */}
-          <motion.h1
+          <h1
             id="hero-heading"
-            variants={shouldReduceMotion ? undefined : fadeInUp}
             className="font-heading text-5xl font-bold tracking-tight text-foreground sm:text-6xl md:text-7xl lg:text-8xl"
           >
             {SITE_CONFIG.name}.
-          </motion.h1>
+          </h1>
 
           {/* Role — secondary, one line, no wrap */}
-          <motion.p
-            variants={shouldReduceMotion ? undefined : fadeInUp}
+          <p
             className="font-heading whitespace-nowrap text-2xl font-normal tracking-tight text-muted-foreground/70 sm:text-3xl md:text-4xl lg:text-5xl"
           >
             {intl.formatMessage({ id: 'hero.role' })}.
-          </motion.p>
+          </p>
 
           {/* Specializations — tertiary, small, subtle */}
-          <motion.p
-            variants={shouldReduceMotion ? undefined : fadeInUp}
+          <p
             className="mt-1 text-sm font-medium uppercase tracking-widest text-muted-foreground/50 sm:text-base"
           >
             {intl.formatMessage({ id: 'hero.specializations' })}
-          </motion.p>
+          </p>
 
           {/* Divider */}
-          <motion.div
-            variants={shouldReduceMotion ? undefined : fadeInUp}
+          <div
             className="mt-2 h-px w-16 bg-border/60"
           />
 
           {/* Tagline */}
-          <motion.p
-            variants={shouldReduceMotion ? undefined : fadeInUp}
+          <p
             className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
           >
             {intl.formatMessage({ id: 'hero.tagline' })}
-          </motion.p>
+          </p>
 
           {/* CTA */}
-          <motion.div
-            variants={shouldReduceMotion ? undefined : slideInLeft}
+          <div
             className="mt-4 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
           >
             <TransitionLink
@@ -126,28 +137,15 @@ export function Hero() {
               {intl.formatMessage({ id: 'hero.viewProjects' })}
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </TransitionLink>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+          </div>
+        </div>
+      </div>
 
-      {/* CSS also hides the indicator before the motion preference hydrates. */}
-      {!shouldReduceMotion && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.2, duration: 0.6 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-muted-foreground/50 transition-colors hover:text-muted-foreground motion-reduce:hidden"
-        >
-          <TransitionLink href="#projects" aria-label="Scroll to projects" className="flex items-center justify-center">
-            <motion.div
-              animate={shouldReduceMotion ? undefined : { y: [0, 6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <ChevronDown className="h-5 w-5" />
-            </motion.div>
-          </TransitionLink>
-        </motion.div>
-      )}
+      <div className={cn(styles.indicator, 'absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 text-muted-foreground/50 transition-colors hover:text-muted-foreground motion-reduce:hidden')}>
+        <TransitionLink href="#projects" aria-label={intl.formatMessage({ id: 'hero.viewProjects' })} className="flex items-center justify-center">
+          <ChevronDown className="hero-scroll-chevron h-5 w-5" aria-hidden="true" />
+        </TransitionLink>
+      </div>
     </section>
   )
 }

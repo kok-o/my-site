@@ -13,7 +13,13 @@ export const SITE_CONFIG = {
   description:
     'Software Engineer building Python services and AI developer tools, contributing to Soup and Stroq, and creating interfaces with React and Next.js.',
   email: 'esenbeknrhan2@gmail.com',
+  telegram: 'https://t.me/k0ko_tg',
   availableForWork: true,
+} as const
+
+export const STROQ = {
+  repository: 'https://github.com/AGGIB/Stroq',
+  recoveryPull: 257,
 } as const
 
 // ---------------------------------------------------------------------------
@@ -64,7 +70,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
   },
   {
     platform: 'Telegram',
-    href: 'https://t.me/k0ko_tg',
+    href: SITE_CONFIG.telegram,
     ariaLabel: 'Contact on Telegram',
   },
 ]

@@ -9,8 +9,8 @@ interface SectionHeadingProps {
   eyebrow: string
   heading: string
   description?: string
-  /** Align text. Defaults to 'left'. */
   align?: 'left' | 'center'
+  compact?: boolean
   /** Additional class names for the wrapper */
   className?: string
   /** ID for aria-labelledby on the parent <section> */
@@ -22,6 +22,7 @@ export function SectionHeading({
   heading,
   description,
   align = 'left',
+  compact = false,
   className,
   id,
 }: SectionHeadingProps) {
@@ -33,15 +34,16 @@ export function SectionHeading({
         className,
       )}
     >
-      {/* Eyebrow — uppercase, accent blue, tracking-widest */}
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+      <p className={compact ? 'text-xs font-semibold uppercase tracking-[0.2em] text-primary' : 'section-label'}>
         {eyebrow}
       </p>
 
-      {/* Main heading — h2 scale, tight tracking */}
       <h2
         id={id}
-        className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
+        className={cn(
+          'font-semibold tracking-tight text-foreground',
+          compact ? 'text-3xl sm:text-4xl' : 'text-balance text-[clamp(2rem,3.6vw,3.25rem)] leading-[1.08]',
+        )}
       >
         {heading}
       </h2>

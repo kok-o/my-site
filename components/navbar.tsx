@@ -45,12 +45,11 @@ function NavLinkItem({ href, label, onClick, className }: NavLinkItemProps) {
       className={cn(
         'relative text-sm font-medium text-muted-foreground transition-colors duration-200',
         'hover:text-foreground focus-visible:text-foreground',
-        'after:absolute after:bottom-[-3px] after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full focus-visible:after:w-full',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
         className,
       )}
     >
-      {label}
+      <span className="link-ink pb-0.5">{label}</span>
     </Link>
   )
 }
@@ -60,8 +59,10 @@ function NavLinkItem({ href, label, onClick, className }: NavLinkItemProps) {
 // ---------------------------------------------------------------------------
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [atFooter, setAtFooter] = useState(false)
   const [heroNameHidden, setHeroNameHidden] = useState(false)
-  const scrollState = useRef({ scrolled: false, heroNameHidden: false })
+  const glassBoundary = useRef<HTMLSpanElement>(null)
+  const nameBoundary = useRef<HTMLSpanElement>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const pathname = usePathname()
   const menuButtonRef = useRef<HTMLButtonElement>(null)
@@ -71,63 +72,47 @@ export function Navbar() {
   const { locale } = useLanguage()
   const resumeHref = `/resume/Nurkhan_Esenbek_${locale === 'en' ? 'EN' : 'RU'}.pdf`
   const wordmarkVisible = pathname !== '/' || heroNameHidden
+  const headingEdge = heroNameHidden ? 96 : 80
+  const fadeOffset = HERO_FADE_DISTANCE * (heroNameHidden ? 0.8 : 0.9)
 
   useEffect(() => {
-    let frame = 0
+    const main = document.getElementById('main-content')
+    const boundary = glassBoundary.current
+    if (!main || !boundary) return
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const aboveHeader = !entry.isIntersecting && entry.boundingClientRect.bottom <= (entry.rootBounds?.top ?? 64)
+        if (entry.target === main) setAtFooter(aboveHeader)
+        else setScrolled(aboveHeader)
+      }
+    }, { rootMargin: '-64px 0px 0px' })
+    observer.observe(main)
+    observer.observe(boundary)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     const heading = pathname === '/' ? document.getElementById('hero-heading') : null
-    const content = heading?.closest<HTMLElement>('.section-container')
-
-    const update = () => {
-      frame = 0
-      const scrollTop = window.scrollY
-      const nextScrolled = scrollTop > 16
-      if (scrollState.current.scrolled !== nextScrolled) {
-        scrollState.current.scrolled = nextScrolled
-        setScrolled(nextScrolled)
+    const boundary = nameBoundary.current
+    if (!heading) return
+    let headingPassed: boolean | undefined
+    let fadePassed: boolean | undefined = shouldReduceMotion ? false : undefined
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const passed = !entry.isIntersecting && entry.boundingClientRect.bottom <= (entry.rootBounds?.top ?? headingEdge)
+        if (entry.target === heading) headingPassed = passed
+        else fadePassed = passed
       }
-      if (!heading) return
-
-      const updateNameVisibility = (hidden: boolean) => {
-        if (scrollState.current.heroNameHidden === hidden) return
-        scrollState.current.heroNameHidden = hidden
-        setHeroNameHidden(hidden)
+      if (headingPassed !== undefined && fadePassed !== undefined) {
+        setHeroNameHidden(headingPassed || fadePassed)
       }
-
-      // Once the hero is fully transparent, scrolling the rest of the page
-      // needs no hero geometry or computed-style reads. Recheck on the way up.
-      if (!shouldReduceMotion && scrollTop >= HERO_FADE_DISTANCE) {
-        updateNameVisibility(true)
-        return
-      }
-
-      // The hero fades before its layout box necessarily leaves a tall screen.
-      // Follow its perceived visibility, with a small reversal threshold to
-      // avoid flicker when a visitor stops scrolling at the hand-off point.
-      const bottom = heading.getBoundingClientRect().bottom
-      const opacity = shouldReduceMotion || !content ? 1 : Number(getComputedStyle(content).opacity)
-      updateNameVisibility(scrollState.current.heroNameHidden
-        ? bottom <= 96 || opacity <= 0.2
-        : bottom <= 80 || opacity <= 0.1)
-    }
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(update)
-    }
-
-    update()
-    // Recheck after initial anchor restoration and hydrated language layout.
-    schedule()
-    const observer = new ResizeObserver(schedule)
-    if (heading) observer.observe(heading)
-    if (content) observer.observe(content)
-    window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    return () => {
-      cancelAnimationFrame(frame)
-      observer.disconnect()
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-    }
-  }, [pathname, locale, shouldReduceMotion])
+    }, { rootMargin: `-${headingEdge}px 0px 100% 0px` })
+    // Track crossings in the browser, including layout changes from resizing
+    // or translated text. Reduced motion only uses the actual title position.
+    observer.observe(heading)
+    if (boundary && !shouldReduceMotion) observer.observe(boundary)
+    return () => observer.disconnect()
+  }, [pathname, headingEdge, shouldReduceMotion])
 
   useEffect(() => {
     const handleResize = () => {
@@ -186,6 +171,11 @@ export function Navbar() {
 
   return (
     <>
+      {/* At 16px of scroll, the bottom of this marker passes the 64px header. */}
+      <span ref={glassBoundary} aria-hidden="true" className="pointer-events-none absolute top-0 left-0 h-[80px] w-px" />
+      {pathname === '/' && !shouldReduceMotion && (
+        <span ref={nameBoundary} aria-hidden="true" className="pointer-events-none absolute top-0 left-0 w-px" style={{ height: headingEdge + fadeOffset }} />
+      )}
       <motion.header
         key={shouldReduceMotion ? 'reduced' : 'animated'}
         variants={shouldReduceMotion ? undefined : navbarEntrance}
@@ -193,22 +183,20 @@ export function Navbar() {
         animate="visible"
         className={cn(
           brandStyles.header,
-          'fixed top-0 left-0 z-50 w-screen',
-          'border-b transition-all duration-300',
-          scrolled
-            ? 'glass border-border/50 backdrop-blur-md'
-            : 'border-transparent bg-transparent',
+          'fixed top-0 left-0 z-50 w-screen border-b',
+          scrolled ? 'glass border-border/50 backdrop-blur-md' : 'border-transparent bg-transparent',
         )}
+        data-at-footer={atFooter && !mobileOpen}
         role="banner"
       >
         <nav
           className="section-container flex h-16 items-center justify-between"
-          aria-label="Main navigation"
+          aria-label={intl.formatMessage({ id: 'nav.main' })}
         >
           {/* Logo / Wordmark */}
           <Link
             href="/"
-            aria-label={`${SITE_CONFIG.name} — home`}
+            aria-label={intl.formatMessage({ id: 'nav.home' }, { name: SITE_CONFIG.name })}
             data-wordmark-visible={wordmarkVisible}
             className={cn(
               brandFont.className,
@@ -239,12 +227,11 @@ export function Navbar() {
                       rel="noopener noreferrer"
                       className={cn(
                         'relative text-sm font-medium text-muted-foreground transition-colors duration-200',
-                        'hover:text-foreground',
-                        'after:absolute after:bottom-[-3px] after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full',
+                        'hover:text-foreground focus-visible:text-foreground',
                         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
                       )}
                     >
-                      {link.label}
+                      <span className="link-ink pb-0.5">{link.label}</span>
                     </a>
                   ) : (
                     <NavLinkItem href={link.href} label={intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })} />
@@ -288,7 +275,7 @@ export function Navbar() {
             <button
               ref={menuButtonRef}
               type="button"
-              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-label={intl.formatMessage({ id: mobileOpen ? 'nav.closeMenu' : 'nav.openMenu' })}
               aria-expanded={mobileOpen}
               aria-controls="mobile-menu"
               onClick={() => setMobileOpen((prev) => !prev)}
@@ -334,7 +321,7 @@ export function Navbar() {
             ref={menuRef}
             id="mobile-menu"
             role="dialog"
-            aria-label="Mobile navigation"
+            aria-label={intl.formatMessage({ id: 'nav.mobileMenu' })}
             aria-modal="true"
             variants={shouldReduceMotion ? undefined : mobileMenuOverlay}
             initial="hidden"
@@ -349,7 +336,7 @@ export function Navbar() {
               animate="visible"
               className="flex h-full flex-col items-center justify-center gap-8"
               onClick={(e) => e.stopPropagation()}
-              aria-label="Mobile navigation links"
+              aria-label={intl.formatMessage({ id: 'nav.sections' })}
             >
               {NAV_LINKS.map((link) => (
                 <motion.div

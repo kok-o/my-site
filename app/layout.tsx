@@ -17,7 +17,7 @@ import './globals.css'
 // ---------------------------------------------------------------------------
 const geistSans = Geist({
   variable: '--font-geist-sans',
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic', 'cyrillic-ext'],
   display: 'swap',
 })
 
@@ -97,7 +97,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
             <Navbar />
 
-            <main id="main-content" className="page-content flex-1">
+            <main id="main-content" tabIndex={-1} className="page-content flex-1 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0">
               {children}
             </main>
 

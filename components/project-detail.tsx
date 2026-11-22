@@ -1,15 +1,15 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, ArrowUpRight, BookOpen, Braces, ExternalLink, MessagesSquare, Settings2, SquareTerminal, UserRound } from 'lucide-react'
-import { useIntl } from 'react-intl'
+import { ArrowRight, ArrowUpRight, BookOpen, Braces, MessagesSquare, Settings2, SquareTerminal, UserRound } from 'lucide-react'
+import { FormattedMessage, useIntl } from 'react-intl'
+import { ContextOSExample } from '@/components/contextos-example'
 import { TransitionLink } from '@/components/transition-link'
 import { ProjectGallery } from '@/components/project-gallery'
+import { ProjectHeaderArt } from '@/components/project-header-art'
 import { GitHubIcon } from '@/components/icons'
-import { type Project, SITE_CONFIG } from '@/lib/constants'
+import { SITE_CONFIG, type Project } from '@/lib/constants'
 import { PROJECT_DETAILS, type ProjectFeatureIcon } from '@/lib/project-details'
-import { HERO_FADE_DISTANCE } from '@/lib/animations'
-import { useReducedMotion } from '@/lib/use-reduced-motion'
+import styles from './project-header-art.module.css'
 
 const featureIcons = {
   book: BookOpen,
@@ -27,94 +27,76 @@ interface ProjectDetailProps {
 
 export function ProjectDetail({ project, nextProject }: ProjectDetailProps) {
   const intl = useIntl()
-  const shouldReduceMotion = useReducedMotion()
-  const { scrollY } = useScroll()
-  const introOpacity = useTransform(scrollY, [0, HERO_FADE_DISTANCE], [1, 0])
-  // Fully faded links must not remain invisible pointer targets. Keyboard
-  // focus restores the intro through focus-within, keeping both links usable.
-  const introPointerEvents = useTransform(introOpacity, (opacity) => opacity > 0 ? 'auto' : 'none')
   const details = PROJECT_DETAILS[project.id]
   const message = (suffix: string) => intl.formatMessage({ id: `project.${project.id}.detail.${suffix}` })
+  const contactLinkClass = 'link-ink link-ink-rest rounded-sm text-foreground'
 
-  return (
-    <article className="section-container pb-8 pt-16">
-      <motion.header
-        key={shouldReduceMotion ? 'static-intro' : 'animated-intro'}
-        style={shouldReduceMotion ? undefined : { opacity: introOpacity, pointerEvents: introPointerEvents }}
-        className="relative mx-auto flex min-h-[calc(100svh-4rem)] max-w-3xl flex-col justify-center py-12 text-center focus-within:opacity-100! focus-within:pointer-events-auto! sm:py-16"
-      >
-        <h1 className="font-heading text-5xl font-bold tracking-tight text-foreground min-[375px]:text-6xl sm:text-7xl lg:text-8xl">
+  const article = (
+    <article className="section-container flex flex-col gap-16 pt-28 pb-16 sm:gap-24 sm:pt-36 sm:pb-24 lg:gap-32 lg:pt-44">
+      <header className={project.id === 'contextos' ? styles.header : styles.illustratedHeader}>
+        <h1 className="text-balance font-heading text-5xl font-bold tracking-tight text-foreground sm:text-7xl lg:text-8xl">
           {project.title}.
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-xl font-normal tracking-tight text-muted-foreground sm:text-2xl lg:text-3xl">
+        <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:mt-6 sm:text-2xl">
           {message('subtitle')}
         </p>
-        <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          {intl.formatMessage({ id: `project.${project.id}.description` })}
-        </p>
-        <ul className="mt-6 flex flex-wrap justify-center gap-2" aria-label={intl.formatMessage({ id: 'detail.technologies' })}>
-          {project.tags.map((tag) => (
-            <li key={tag} className="rounded-full border border-border/60 bg-secondary/60 px-3 py-1 text-xs text-muted-foreground">
-              {tag}
-            </li>
-          ))}
-        </ul>
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          {project.href && (
-            <a
-              href={project.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-opacity duration-150 hover:opacity-85"
-            >
-              {intl.formatMessage({ id: 'project.liveDemo' })}
-              <ExternalLink className="size-4" aria-hidden="true" />
-            </a>
-          )}
-          {project.githubHref && (
-            <a
-              href={project.githubHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md border border-border px-5 py-3 text-sm font-medium text-foreground transition-colors duration-150 hover:bg-secondary"
-            >
-              <GitHubIcon className="size-4" aria-hidden="true" />
-              {intl.formatMessage({ id: 'project.source' })}
-            </a>
-          )}
-        </div>
-      </motion.header>
-
-      <ProjectGallery key={project.id} project={project} screens={details.screens} mediaType={details.mediaType} />
-
-      <dl className="mt-9 grid grid-cols-3 gap-3 border-y border-border/60 py-6 sm:gap-8 sm:py-7">
-        {[
-          { label: 'kind', value: intl.formatMessage({ id: `detail.${details.kind}` }) },
-          { label: 'platform', value: intl.formatMessage({ id: `detail.${details.platform}` }) },
-          { label: 'year', value: project.year },
-        ].map(({ label, value }) => (
-          <div key={label} className="min-w-0">
-            <dt className="text-xs text-muted-foreground">{intl.formatMessage({ id: `detail.${label}` })}</dt>
-            <dd className="mt-2 text-xs font-medium text-foreground sm:text-sm">{value}</dd>
+        <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-1 sm:mt-8">
+          <dl className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            {[
+              ['year', project.year],
+              ['kind', intl.formatMessage({ id: `detail.${details.kind}` })],
+              ['platform', intl.formatMessage({ id: `detail.${details.platform}` })],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt className="sr-only">{intl.formatMessage({ id: `detail.${label}` })}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="flex flex-wrap items-center gap-x-5 text-sm font-medium text-foreground">
+            {project.githubHref && (
+              <a href={project.githubHref} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-sm">
+                <GitHubIcon className="size-4" aria-hidden="true" />
+                <span className="link-ink">{intl.formatMessage({ id: 'project.source' })}</span>
+              </a>
+            )}
+            {project.href && (
+              <a href={project.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-1.5 rounded-sm">
+                <span className="link-ink">{intl.formatMessage({ id: 'project.liveDemo' })}</span>
+                <ArrowUpRight className="size-4" aria-hidden="true" />
+              </a>
+            )}
           </div>
-        ))}
-      </dl>
+        </div>
+        <ProjectHeaderArt projectId={project.id} />
+      </header>
 
-      <div className="grid gap-10 py-12 sm:py-16 md:grid-cols-2 md:gap-16 lg:gap-24">
+      {details.preview.type === 'cli' ? (
+        <ContextOSExample />
+      ) : (
+        <ProjectGallery key={project.id} project={project} preview={details.preview} />
+      )}
+
+      <div className="grid gap-14 md:grid-cols-2 md:gap-16 lg:gap-28">
         <section aria-labelledby="project-about-heading">
           <h2 id="project-about-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">
             {intl.formatMessage({ id: 'detail.about' })}
           </h2>
-          <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">{message('about')}</p>
-          <h3 className="mt-8 text-base font-medium">{intl.formatMessage({ id: 'detail.technologies' })}</h3>
+          <p className="mt-6 max-w-prose leading-7 text-muted-foreground">{message('about')}</p>
+          <h3 className="mt-10 text-base font-medium">{intl.formatMessage({ id: 'detail.technologies' })}</h3>
           <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{message('stack')}</p>
+          <ul className="mt-4 flex flex-wrap gap-2" aria-label={intl.formatMessage({ id: 'detail.technologies' })}>
+            {project.tags.map((tag) => (
+              <li key={tag} className="rounded-md bg-secondary px-2.5 py-1 text-xs text-muted-foreground">{tag}</li>
+            ))}
+          </ul>
         </section>
 
         <section aria-labelledby="project-features-heading">
           <h2 id="project-features-heading" className="text-2xl font-semibold tracking-tight sm:text-3xl">
             {intl.formatMessage({ id: 'detail.features' })}
           </h2>
-          <ul className="mt-6 space-y-6">
+          <ul className="mt-6 space-y-7 sm:space-y-8">
             {details.features.map(({ key, icon }) => {
               const Icon = featureIcons[icon]
               return (
@@ -131,32 +113,31 @@ export function ProjectDetail({ project, nextProject }: ProjectDetailProps) {
         </section>
       </div>
 
-      <section className="flex flex-col items-start justify-between gap-6 border-t border-border/60 py-9 sm:flex-row sm:items-center" aria-labelledby="project-contact-heading">
-        <div>
+      <div className="flex flex-col gap-10 sm:flex-row sm:items-end sm:justify-between sm:gap-12">
+        <section aria-labelledby="project-contact-heading">
           <h2 id="project-contact-heading" className="text-xl font-medium tracking-tight sm:text-2xl">
             {intl.formatMessage({ id: 'detail.contact.heading' })}
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">{intl.formatMessage({ id: 'detail.contact.description' })}</p>
-        </div>
-        <a
-          href={`mailto:${SITE_CONFIG.email}`}
-          className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-opacity duration-150 hover:opacity-85"
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            <FormattedMessage id="detail.contact.description" values={{
+              email: (words) => <a className={contactLinkClass} href={`mailto:${SITE_CONFIG.email}`}>{words}</a>,
+              telegram: (words) => <a className={contactLinkClass} href={SITE_CONFIG.telegram} target="_blank" rel="noopener noreferrer">{words}</a>,
+            }} />
+          </p>
+        </section>
+        <TransitionLink
+          href={`/projects/${nextProject.id}`}
+          className="flex w-fit flex-col items-start gap-1 rounded-sm sm:items-end"
         >
-          {intl.formatMessage({ id: 'contact.sayHello' })}
-          <ArrowUpRight className="size-4" aria-hidden="true" />
-        </a>
-      </section>
-
-      <TransitionLink
-        href={`/projects/${nextProject.id}`}
-        className="group flex items-center justify-between gap-5 rounded-xl border border-border/60 px-5 py-6 transition-colors duration-200 hover:border-foreground/25 hover:bg-secondary/30 sm:px-7"
-      >
-        <span>
-          <span className="block text-xs text-muted-foreground">{intl.formatMessage({ id: 'detail.nextProject' })}</span>
-          <span className="mt-2 block text-2xl font-medium tracking-tight sm:text-3xl">{nextProject.title}</span>
-        </span>
-        <ArrowRight className="size-6 shrink-0 text-muted-foreground transition-colors group-hover:text-foreground" aria-hidden="true" />
-      </TransitionLink>
+          <span className="text-xs text-muted-foreground">{intl.formatMessage({ id: 'detail.nextProject' })}</span>
+          <span className="inline-flex items-center gap-2 text-xl font-medium tracking-tight sm:text-2xl">
+            <span className="link-ink">{nextProject.title}</span>
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </span>
+        </TransitionLink>
+      </div>
     </article>
   )
+
+  return <div className={styles.frame}>{article}</div>
 }

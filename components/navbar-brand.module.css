@@ -1,7 +1,15 @@
 .header {
-  /* Glass keeps a bottom rule without changing the navigation's inner width. */
   border-top-width: 0;
   border-inline-width: 0;
+  transition: background-color var(--duration-slow) ease,
+              border-color var(--duration-slow) ease,
+              box-shadow var(--duration-slow) ease,
+              translate var(--duration-normal) ease-out;
+}
+
+.header[data-at-footer='true']:not(:has(:focus-visible, [aria-expanded='true'])) {
+  translate: 0 -100%;
+  pointer-events: none;
 }
 
 .brand {

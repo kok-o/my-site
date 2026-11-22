@@ -115,6 +115,7 @@
    ============================================================ */
 :root {
   --background: oklch(0.993 0 0);
+  --folio-ink: #3e6471;
   --foreground: oklch(0.145 0 0);
   --card:                oklch(1 0 0);
   --card-foreground:     oklch(0.145 0 0);
@@ -160,6 +161,7 @@
    ============================================================ */
 .dark {
   --background: oklch(0 0 0);
+  --folio-ink: #a0bec9;
   --foreground: oklch(0.985 0 0);
   --card:                oklch(0.12 0 0 / 60%);
   --card-foreground:     oklch(0.985 0 0);
@@ -252,12 +254,8 @@
 
   /* Selection colour */
   ::selection {
-    background: oklch(0.623 0.214 259 / 30%);
+    background: color-mix(in srgb, var(--foreground) 24%, transparent);
     color: var(--foreground);
-  }
-
-  :root:not(.dark) ::selection {
-    background: color-mix(in srgb, var(--accent-graphite) 30%, transparent);
   }
 
   /* Premium Scrollbar */
@@ -282,6 +280,101 @@
 /* ============================================================
    UTILITY CLASSES
    ============================================================ */
+.link-ink {
+  background-image: linear-gradient(currentColor, currentColor),
+    linear-gradient(var(--link-rest-color, transparent), var(--link-rest-color, transparent));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: var(--link-reveal, 0%) 1.5px, 100% 1px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  text-decoration: none;
+  transition: background-size var(--duration-slow) cubic-bezier(0.4, 0, 0.2, 1),
+    color var(--duration-normal) ease;
+}
+
+.link-ink-rest {
+  --link-rest-color: color-mix(in srgb, currentColor 35%, transparent);
+}
+
+@media (hover: hover) {
+  :is(a, button):hover .link-ink,
+  .link-ink:hover {
+    --link-reveal: 100%;
+  }
+}
+
+:is(a, button):focus-visible .link-ink,
+.link-ink:focus-visible {
+  --link-reveal: 100%;
+}
+
+@media (forced-colors: active) {
+  .link-ink-rest,
+  :is(a, button):is(:hover, :focus-visible) .link-ink,
+  .link-ink:is(:hover, :focus-visible) {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+}
+
+.section-label {
+  color: var(--folio-ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+}
+
+@keyframes hero-chevron-bob {
+  50% { transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-scroll-chevron {
+    animation: hero-chevron-bob 1.8s ease-in-out infinite;
+  }
+}
+
+.experience-section {
+  --folio-ink: var(--muted-foreground);
+  background-color: var(--background);
+}
+
+.contact-paper {
+  --paper-base: color-mix(in srgb, var(--background) 95%, var(--foreground));
+  --paper-lit: var(--card);
+  --paper-grain-opacity: 0.08;
+  background: radial-gradient(ellipse at 0% 0%, var(--paper-lit), var(--paper-base) 76%);
+}
+
+.dark .contact-paper {
+  --paper-base: color-mix(in srgb, var(--foreground) 2%, var(--background));
+  --paper-lit: color-mix(in srgb, var(--foreground) 8%, var(--background));
+  --paper-grain-opacity: 0.05;
+  --muted-foreground: color-mix(in srgb, var(--foreground) 62%, var(--background));
+}
+
+.contact-paper::before,
+.contact-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.contact-paper::before {
+  background: url('/hero-grain.png') repeat;
+  opacity: var(--paper-grain-opacity);
+}
+
+.contact-paper::after {
+  background: radial-gradient(circle at 1px 1px, var(--folio-ink) 0.7px, transparent 1.1px) 0 0 / 10px 10px;
+  opacity: 0.19;
+  mask-image: radial-gradient(ellipse 60% 95% at 0% 100%, black, transparent 90%),
+              radial-gradient(ellipse 42% 70% at 100% 0%, black, transparent 95%);
+}
+
 @layer utilities {
   /* Gradient accent text */
   .text-gradient {
@@ -349,28 +442,15 @@
   }
 
   #skills.section-spacing {
-    min-height: calc(100svh - var(--anchor-offset));
-
-    @media (width >= 64rem) {
-      /* Center the heading and cards together in the area below navigation. */
-      --section-padding: 4rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      scroll-margin-top: 0;
-
-      &[data-focused-skill] {
-        justify-content: flex-start;
-        padding-top: var(--skill-heading-offset, 4rem);
-      }
-    }
+    --section-padding: clamp(4.5rem, 11svh, 7rem);
   }
 
   #contact.section-spacing {
     /* Avoid stacking a large contact gap after the centered stack section. */
     --section-padding: 2rem;
-    /* Let the last card and footer share the viewport without an empty tail. */
     padding-bottom: 3rem;
+    /* Land the card just below the upper fifth of the viewport, clear of the navbar. */
+    scroll-margin-top: calc(max(0px, 22.5svh - var(--anchor-offset)) - var(--section-padding));
   }
 }
 
@@ -441,45 +521,92 @@ footer[role="contentinfo"] {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Theme changes use one viewport snapshot, including the fixed chrome. */
-html[data-theme-transition] header[role="banner"],
-html[data-theme-transition] footer[role="contentinfo"] {
+/* Show the first ink at pointer-down, while the browser prepares the viewport. */
+@media (prefers-reduced-motion: no-preference) {
+  .portfolio-theme-toggle::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--foreground);
+    mask: url("/ink-blot.png") center / contain no-repeat;
+    opacity: 0;
+    transform: scale(.5);
+  }
+  .portfolio-theme-toggle:active,
+  :root[data-theme-spill-phase="capture"] .portfolio-theme-toggle {
+    color: var(--background);
+    transition: none;
+  }
+  .portfolio-theme-toggle:active::before,
+  :root[data-theme-spill-phase="capture"] .portfolio-theme-toggle::before {
+    opacity: 1;
+    transform: scale(1);
+    transition: transform 90ms var(--ease-out-expo);
+  }
+}
+
+/* Include the navigation and footer in the old viewport. The new page stays live. */
+:root[data-theme-spill-phase] > body > header[role="banner"],
+:root[data-theme-spill-phase] > body > footer[role="contentinfo"],
+:root:is([data-theme-spill-phase="reveal"], [data-theme-spill-phase="radial"]) {
   view-transition-name: none;
 }
 
-html[data-theme-transition],
-html[data-theme-transition] *,
-html[data-theme-transition] *::before,
-html[data-theme-transition] *::after {
+/* Suppress independent color transitions while applying the new palette. */
+:root:is([data-theme-spill-phase="reveal"], [data-theme-spill-phase="radial"], [data-theme-switch-instant])
+  :is(body, .transition, .transition-colors, .transition-all, .link-ink) {
   transition: none !important;
 }
 
-html[data-theme-transition]::view-transition {
+:root[data-theme-spill-phase]::view-transition {
   pointer-events: none;
 }
 
-html[data-theme-transition]::view-transition-group(root),
-html[data-theme-transition]::view-transition-old(root),
-html[data-theme-transition]::view-transition-new(root) {
+:root[data-theme-spill-phase]::view-transition-group(root),
+:root[data-theme-spill-phase]::view-transition-old(root),
+:root[data-theme-spill-phase]::view-transition-new(root) {
   animation: none;
-  mix-blend-mode: normal;
 }
 
-html[data-theme-transition]::view-transition-image-pair(root) {
+:root[data-theme-spill-phase="reveal"]::view-transition-image-pair(root),
+:root[data-theme-spill-phase="radial"]::view-transition-old(root) {
   isolation: auto;
+  mask-image: linear-gradient(#000, #000), url("/ink-blot.png");
+  mask-repeat: no-repeat;
+  mask-composite: subtract;
+  mask-size: 100% 100%, 0 0;
 }
 
-html[data-theme-transition="light"]::view-transition-new(root),
-html[data-theme-transition="dark"]::view-transition-old(root) {
-  z-index: 2;
+.ink-spill-stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  overflow: hidden;
 }
 
-html[data-theme-transition="light"]::view-transition-old(root),
-html[data-theme-transition="dark"]::view-transition-new(root) {
+.ink-spill-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+
+.ink-spill-layer[data-theme="light"] { color-scheme: light; }
+.ink-spill-layer[data-theme="dark"] { color-scheme: dark; }
+
+.ink-spill-top {
   z-index: 1;
+  pointer-events: none;
+  mask-image: url("/ink-blot.png");
+  mask-repeat: no-repeat;
+  mask-size: 0 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ink-spill-top { display: none; }
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none;

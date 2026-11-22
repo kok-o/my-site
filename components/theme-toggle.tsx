@@ -1,21 +1,16 @@
 'use client'
 
-// ThemeToggle — Client Component
-// Uses useTheme hook from next-themes → requires client context.
-// Renders a sun/moon icon button that switches between light and dark themes.
-
-import { useTheme } from 'next-themes'
-import { Moon, Sun } from 'lucide-react'
 import { useSyncExternalStore } from 'react'
-import { cn } from '@/lib/utils'
-import { toggleTheme } from '@/lib/theme-transition'
+import { useIntl } from 'react-intl'
+import { InkThemeToggle, useInkSpillTheme } from '@/components/ui/ink-spill-theme-switch'
 
 const subscribe = () => () => {}
 const clientSnapshot = () => true
 const serverSnapshot = () => false
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { theme, toggle } = useInkSpillTheme()
+  const intl = useIntl()
   // Avoid hydration mismatch — only render after mount
   const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot)
 
@@ -29,26 +24,13 @@ export function ThemeToggle() {
     )
   }
 
-  const isDark = resolvedTheme === 'dark'
-
   return (
-    <button
-      type="button"
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      onClick={(event) => toggleTheme(event.currentTarget, setTheme, event.detail !== 0)}
-      className={cn(
-        'flex h-9 w-9 items-center justify-center rounded-md',
-        'text-muted-foreground transition-colors duration-200',
-        'hover:bg-secondary hover:text-foreground',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-        'focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-      )}
-    >
-      {isDark
-        ? <Sun className="h-4 w-4" aria-hidden="true" />
-        : <Moon className="h-4 w-4" aria-hidden="true" />
-      }
-    </button>
+    <InkThemeToggle
+      theme={theme}
+      toggle={toggle}
+      aria-label={intl.formatMessage({ id: theme === 'dark' ? 'nav.useLightTheme' : 'nav.useDarkTheme' })}
+      className="portfolio-theme-toggle relative isolate rounded-md border-0 text-muted-foreground transition-colors duration-200 hover:bg-secondary hover:text-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    />
   )
 }
 

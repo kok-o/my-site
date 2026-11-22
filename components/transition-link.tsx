@@ -4,7 +4,7 @@ import NextLink from 'next/link'
 import { useTransitionRouter } from 'next-view-transitions'
 import type { ComponentProps } from 'react'
 import { observeActiveViewTransition, saveScrollPosition } from '@/components/scroll-restoration'
-import { finishThemeTransition } from '@/lib/theme-transition'
+import { finishThemeTransition } from '@/components/ui/ink-spill-theme-switch'
 
 /** Keep native Link semantics; enhance only actual client-side route navigation. */
 export function TransitionLink({

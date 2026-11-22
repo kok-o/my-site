@@ -1,0 +1,46 @@
+.pattern {
+  --corner: color-mix(in srgb, var(--foreground) 7%, var(--background));
+  --band: color-mix(in srgb, var(--foreground) 6%, transparent);
+  --dot: color-mix(in srgb, var(--foreground) 10%, transparent);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--background);
+}
+
+:global(.dark) .pattern {
+  --corner: color-mix(in srgb, var(--foreground) 18%, var(--background));
+  --band: color-mix(in srgb, var(--muted-foreground) 21%, transparent);
+}
+
+.wash, .band, .pattern::before, .pattern::after {
+  position: absolute;
+  inset: 0;
+}
+
+.wash {
+  background: radial-gradient(100% 100% at 0 0, var(--corner), var(--background));
+  mask-image: radial-gradient(125% 100% at 0 0, black, rgb(0 0 0 / 22%) 88%, transparent);
+}
+
+.band {
+  background: linear-gradient(to bottom, var(--band), transparent);
+  transform: skewX(45deg);
+}
+
+.pattern::before {
+  content: '';
+  z-index: 1;
+  background: url('/hero-grain.png') repeat;
+  opacity: 0.045;
+}
+
+.pattern::after {
+  content: '';
+  z-index: 1;
+  background: radial-gradient(circle at 1px 1px, var(--dot) 0.85px, transparent 1.2px) 0 0 / 20px 20px;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .band { transform: skewX(22deg); }
+}

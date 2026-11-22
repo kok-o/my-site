@@ -2,17 +2,15 @@
 
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useReducedMotion } from '@/lib/use-reduced-motion'
 import { FileText, ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { GitHubIcon } from '@/components/icons'
 import { type Project } from '@/lib/constants'
 import { cn } from '@/lib/utils'
-import { fadeInUp } from '@/lib/animations'
 import { useTheme } from 'next-themes'
 import { useLanguage } from '@/components/language-provider'
 import useEmblaCarousel from 'embla-carousel-react'
-import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useIntl } from 'react-intl'
 import { TransitionLink } from '@/components/transition-link'
 
@@ -27,12 +25,12 @@ const MOBILE_PREVIEW_SIZES = '(max-width: 639px) calc(26vw - 28px), (max-width: 
 
 function MobileProjectPreview({ images, index, alt }: { images: string[]; index: number; alt: string }) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center gap-4 px-4 pb-8 pt-2">
+    <span className="absolute inset-0 flex items-center justify-center gap-4 px-4 pb-8 pt-2">
       {[-1, 0, 1].map((offset) => {
         const isMain = offset === 0
         const source = images[(index + offset + images.length) % images.length]
         return (
-          <div
+          <span
             key={offset}
             aria-hidden={isMain ? undefined : true}
             className={cn(
@@ -47,10 +45,10 @@ function MobileProjectPreview({ images, index, alt }: { images: string[]; index:
               sizes={MOBILE_PREVIEW_SIZES}
               className="object-contain"
             />
-          </div>
+          </span>
         )
       })}
-    </div>
+    </span>
   )
 }
 
@@ -59,10 +57,17 @@ const hydratedSnapshot = () => true
 const serverSnapshot = () => false
 
 export function ProjectCard({ project, className }: ProjectCardProps) {
-  const shouldReduceMotion = useReducedMotion()
   const intl = useIntl()
   const { locale } = useLanguage()
   const { theme, resolvedTheme } = useTheme()
+  const [prefetchDetails, setPrefetchDetails] = useState(false)
+  const enablePrefetch = prefetchDetails ? undefined : () => setPrefetchDetails(true)
+  const detailLinkProps = {
+    href: `/projects/${project.id}`,
+    prefetch: prefetchDetails ? null : false,
+    onMouseMove: enablePrefetch,
+    onFocus: enablePrefetch,
+  }
   // Both SSR and the hydration render use dark images. Read the saved theme
   // only after hydration, so next/image src and srcSet agree on the first render.
   const mounted = useSyncExternalStore(subscribeToHydration, hydratedSnapshot, serverSnapshot)
@@ -87,8 +92,40 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
   })()
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
+  const hasMultipleSlides = images.length > 1
+  const attachCarousel = useCallback((viewport: HTMLButtonElement | null) => {
+    if (!viewport || !hasMultipleSlides) return
+    if (typeof IntersectionObserver === 'undefined') {
+      emblaRef(viewport)
+      return () => emblaRef(null)
+    }
+
+    // The first slide already renders on the server. Measure the strip once
+    // it approaches the viewport, then keep its swipe position for this visit.
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+      observer.disconnect()
+      emblaRef(viewport)
+    }, { rootMargin: '360px 0px' })
+    // Observe the always-sized wrapper, including while its children are
+    // skipped by content-visibility.
+    observer.observe(viewport.parentElement ?? viewport)
+    return () => {
+      observer.disconnect()
+      emblaRef(null)
+    }
+  }, [emblaRef, hasMultipleSlides])
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  const opener = useRef<HTMLButtonElement | null>(null)
+  const mountLightbox = useCallback((dialog: HTMLDialogElement | null) => {
+    if (!dialog) return
+    dialog.showModal()
+    return () => {
+      dialog.close()
+      opener.current?.focus({ preventScroll: true })
+    }
+  }, [])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -118,18 +155,6 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
   }, [emblaApi, onSelect])
 
   useEffect(() => {
-    if (emblaApi) {
-      emblaApi.reInit()
-    }
-  }, [images, emblaApi])
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsLightboxOpen(false)
-      if (e.key === 'ArrowLeft' && isLightboxOpen) scrollPrev()
-      if (e.key === 'ArrowRight' && isLightboxOpen) scrollNext()
-    }
-    
     if (!isLightboxOpen) return
     const previousOverflow = document.body.style.overflow
     const previousPaddingRight = document.body.style.paddingRight
@@ -138,24 +163,21 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       const paddingRight = parseFloat(getComputedStyle(document.body).paddingRight) || 0
       document.body.style.paddingRight = `${paddingRight + scrollbarWidth}px`
     }
-    window.addEventListener('keydown', handleKeyDown)
     document.body.style.overflow = 'hidden'
     
     return () => {
-      window.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = previousOverflow
       document.body.style.paddingRight = previousPaddingRight
     }
-  }, [isLightboxOpen, scrollPrev, scrollNext])
+  }, [isLightboxOpen])
 
   return (
     <>
-      <motion.article
-      variants={shouldReduceMotion ? undefined : fadeInUp}
+    <article
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-2xl',
         'border border-surface-border bg-card/50 text-card-foreground shadow-sm',
-        'backdrop-blur-md transition-colors duration-300',
+        'transition-colors duration-300',
         'hover:border-primary/30 hover:bg-card hover:shadow-glow',
         className,
       )}
@@ -164,77 +186,67 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       {/* Image Carousel Container */}
       {/* ------------------------------------------------------------------- */}
       <div className={cn(
-        'relative aspect-video w-full overflow-hidden border-b border-border/50 group/carousel',
+        'relative aspect-video w-full overflow-hidden border-b border-border/50 group/carousel [content-visibility:auto]',
         project.id === 'ai-miky' ? 'bg-secondary/30' : 'bg-black/20',
       )}>
         {project.id !== 'ai-miky' && (
           <div className="absolute inset-0 z-20 bg-background/10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
         )}
         
-        <div className="overflow-hidden h-full" ref={emblaRef}>
-          <div className="flex h-full touch-pan-y">
+        <button
+          type="button"
+          ref={attachCarousel}
+          aria-haspopup="dialog"
+          aria-label={intl.formatMessage({ id: 'project.openPreview' }, { project: project.title })}
+          className="block h-full w-full cursor-zoom-in overflow-hidden focus-visible:outline-2 focus-visible:-outline-offset-4"
+          onClick={(event) => {
+            opener.current = event.currentTarget
+            if (hasMultipleSlides) emblaRef(event.currentTarget)
+            setIsLightboxOpen(true)
+          }}
+        >
+          <span className="flex h-full touch-pan-y">
+            {/* Keep every snap point measurable; mount the other previews with the swipe engine. */}
             {images.map((img, index) => (
-              <div 
-                className="relative flex-[0_0_100%] min-w-0 h-full cursor-zoom-in" 
-                key={`${img}-${index}`}
+              <span
+                className={cn('relative h-full min-w-0 flex-[0_0_100%]', project.lightImageFilter && 'bg-black')}
+                key={index}
                 style={imageStyle}
-                onClick={() => setIsLightboxOpen(true)}
               >
-                {project.id === 'ai-miky' ? (
+                {(index === 0 || emblaApi) && (project.id === 'ai-miky' ? (
                   <MobileProjectPreview
                     images={images}
                     index={index}
                     alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
                   />
                 ) : (
-                  <>
-                    {/* Contained previews need a backdrop; CodeAi covers it completely. */}
-                    {project.id !== 'code-ai' && <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                      <Image
-                        src={img}
-                        alt=""
-                        fill
-                        sizes={PROJECT_PREVIEW_SIZES}
-                        className="object-cover opacity-40 blur-xl scale-110 saturate-150"
-                        aria-hidden="true"
-                      />
-                    </div>}
-
-                    {/* Main Image */}
-                    <div className="absolute inset-0 z-10">
-                      <Image
-                        src={img}
-                        alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
-                        fill
-                        sizes={PROJECT_PREVIEW_SIZES}
-                        className={cn(
-                          'transition-transform duration-500',
-                          project.id === 'code-ai' ? 'object-cover' : 'object-contain drop-shadow-2xl',
-                        )}
-                        priority={false}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
+                  <Image
+                    src={img}
+                    alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
+                    fill
+                    sizes={PROJECT_PREVIEW_SIZES}
+                    className={project.id === 'code-ai' ? 'object-cover' : 'object-contain'}
+                  />
+                ))}
+              </span>
             ))}
-          </div>
-        </div>
+          </span>
+        </button>
 
         {/* Carousel Navigation Arrows */}
-        {images.length > 1 && (
+        {hasMultipleSlides && (
           <>
             <button
               onClick={scrollPrev}
               className="absolute left-2 top-1/2 z-30 -translate-y-1/2 rounded-full bg-background/80 p-1.5 text-foreground opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover/carousel:opacity-100"
-              aria-label="Previous slide"
+              aria-label={intl.formatMessage({ id: 'detail.previousScreenshot' })}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={scrollNext}
               className="absolute right-2 top-1/2 z-30 -translate-y-1/2 rounded-full bg-background/80 p-1.5 text-foreground opacity-0 backdrop-blur-sm transition-all duration-300 hover:bg-background hover:scale-110 group-hover/carousel:opacity-100"
-              aria-label="Next slide"
+              aria-label={intl.formatMessage({ id: 'detail.nextScreenshot' })}
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -251,7 +263,8 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                       ? "w-4 bg-primary" 
                       : "w-1.5 bg-primary/40 hover:bg-primary/60"
                   )}
-                  aria-label={`Go to slide ${index + 1}`}
+                  aria-label={intl.formatMessage({ id: 'project.showSlide' }, { number: index + 1 })}
+                  aria-current={index === selectedIndex ? 'true' : undefined}
                 />
               ))}
             </div>
@@ -266,8 +279,8 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         <div className="mb-3 flex items-center justify-between gap-4">
           <h3 className="font-heading text-xl font-semibold tracking-tight">
             <TransitionLink
-              href={`/projects/${project.id}`}
-              className="rounded-sm transition-colors hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              {...detailLinkProps}
+              className="link-ink rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {intl.formatMessage({ id: `project.${project.id}.title` })}
             </TransitionLink>
@@ -283,7 +296,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 
         <div className="mt-auto flex flex-col gap-6">
           {/* Tags */}
-          <ul className="flex flex-wrap gap-2" aria-label="Technologies used">
+          <ul className="flex flex-wrap gap-2" aria-label={intl.formatMessage({ id: 'detail.technologies' })}>
             {project.tags.map((tag) => (
               <li
                 key={tag}
@@ -297,15 +310,15 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
           {/* Links */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-border/50 pt-4">
             <TransitionLink
-              href={`/projects/${project.id}`}
+              {...detailLinkProps}
               className={cn(
-                'inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground',
+                'inline-flex items-center gap-1.5 text-sm font-medium text-[var(--folio-ink)]',
                 'transition-colors hover:text-foreground',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
               )}
             >
               <FileText className="h-4 w-4" aria-hidden="true" />
-              {intl.formatMessage({ id: 'project.details' })}
+              <span className="link-ink">{intl.formatMessage({ id: 'project.details' })}</span>
             </TransitionLink>
             {project.githubHref && (
               <a
@@ -319,7 +332,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 )}
               >
                 <GitHubIcon className="h-4 w-4" aria-hidden="true" />
-                {intl.formatMessage({ id: 'project.source' })}
+                <span className="link-ink">{intl.formatMessage({ id: 'project.source' })}</span>
               </a>
             )}
             
@@ -335,45 +348,58 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 )}
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                {intl.formatMessage({ id: 'project.liveDemo' })}
+                <span className="link-ink">{intl.formatMessage({ id: 'project.liveDemo' })}</span>
               </a>
             )}
           </div>
         </div>
       </div>
-    </motion.article>
+    </article>
 
     {mounted && createPortal(
       <AnimatePresence>
         {isLightboxOpen && (
-          <motion.div
+          <motion.dialog
+            ref={mountLightbox}
+            aria-label={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
+            onCancel={(event) => {
+              event.preventDefault()
+              setIsLightboxOpen(false)
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                event.preventDefault()
+                if (event.key === 'ArrowLeft') scrollPrev()
+                else scrollNext()
+              }
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md"
+            className="fixed inset-0 m-0 flex h-full max-h-none w-full max-w-none items-center justify-center border-0 bg-black/95 p-4 backdrop-blur-md backdrop:bg-transparent"
             onClick={() => setIsLightboxOpen(false)}
           >
             <button
               onClick={() => setIsLightboxOpen(false)}
               className="absolute right-4 top-4 z-[110] rounded-full bg-white/10 p-2 text-white hover:bg-white/25 transition-colors"
-              aria-label="Close lightbox"
+              aria-label={intl.formatMessage({ id: 'project.closePreview' })}
             >
               <X className="h-6 w-6" />
             </button>
 
-            {images.length > 1 && (
+            {hasMultipleSlides && (
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); scrollPrev(); }}
                   className="absolute left-4 md:left-8 top-1/2 z-[110] -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/25 transition-colors"
-                  aria-label="Previous image"
+                  aria-label={intl.formatMessage({ id: 'detail.previousScreenshot' })}
                 >
                   <ChevronLeft className="h-8 w-8 md:h-12 md:w-12" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); scrollNext(); }}
                   className="absolute right-4 md:right-8 top-1/2 z-[110] -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/25 transition-colors"
-                  aria-label="Next image"
+                  aria-label={intl.formatMessage({ id: 'detail.nextScreenshot' })}
                 >
                   <ChevronRight className="h-8 w-8 md:h-12 md:w-12" />
                 </button>
@@ -399,7 +425,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
                 priority
               />
             </motion.div>
-          </motion.div>
+          </motion.dialog>
         )}
       </AnimatePresence>,
       document.body

@@ -1,130 +1,93 @@
 'use client'
 
-// Footer
-// Brand icons (GitHub, LinkedIn, X/Twitter) are inlined as SVG because
-// lucide-react v1.21+ removed all brand icons. Inline SVG is the correct
-// approach per DEVELOPMENT_RULES.md (official brand assets, vector-only).
-
-import { TransitionLink as Link } from '@/components/transition-link'
-import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import { SITE_CONFIG, SOCIAL_LINKS, NAV_LINKS } from '@/lib/constants'
-import { brandFont } from '@/lib/brand-font'
-import { cn } from '@/lib/utils'
+import { usePathname } from 'next/navigation'
+import { useRef } from 'react'
+import { useInView } from 'motion/react'
+import { ArrowUpRight } from 'lucide-react'
 import { useIntl } from 'react-intl'
-
-// ---------------------------------------------------------------------------
 import { GitHubIcon, LinkedInIcon, TelegramIcon, type IconProps } from '@/components/icons'
+import { FooterRidges } from '@/components/footer-ridges'
+import { TransitionLink } from '@/components/transition-link'
+import { brandFont } from '@/lib/brand-font'
+import { NAV_LINKS, SITE_CONFIG, SOCIAL_LINKS } from '@/lib/constants'
+import styles from './footer.module.css'
 
-// ---------------------------------------------------------------------------
-// Social icon map — keyed by platform name from constants.ts
-// ---------------------------------------------------------------------------
-const SOCIAL_ICONS: Record<string, React.ComponentType<IconProps>> = {
+const socialIcons: Record<string, React.FC<IconProps>> = {
   GitHub: GitHubIcon,
   LinkedIn: LinkedInIcon,
   Telegram: TelegramIcon,
 }
 
-// ---------------------------------------------------------------------------
-// Footer
-// ---------------------------------------------------------------------------
 export function Footer() {
-  const currentYear = new Date().getFullYear()
   const pathname = usePathname()
   const intl = useIntl()
+  const homeLabel = intl.formatMessage({ id: 'nav.home' }, { name: SITE_CONFIG.name })
+  const signatureRef = useRef<SVGSVGElement>(null)
+  const directoryRef = useRef<HTMLDivElement>(null)
+  const signatureVisible = useInView(signatureRef, { once: true, amount: 0.12 })
+  const directoryVisible = useInView(directoryRef, { once: true, amount: 0.15 })
 
   return (
-    <footer
-      className={cn(
-        'border-t border-border',
-        'bg-background/50 backdrop-blur-sm',
-      )}
-      role="contentinfo"
-      aria-label="Site footer"
-    >
-      <div className="section-container py-12">
-        <div className="flex flex-col items-center justify-between gap-8 sm:flex-row sm:gap-4">
-
-          {/* Left — Brand + tagline */}
-          <div className="flex items-center justify-center sm:justify-start">
-            <Link
-              href="/"
-              aria-label={`${SITE_CONFIG.name} — back to top`}
-              className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
-            >
-              <div
-                aria-hidden="true"
-                className="flex h-9 w-9 shrink-0 items-center justify-center select-none overflow-hidden rounded-md bg-black dark:bg-white"
-              >
-                <Image src="/logo1.png" width={36} height={36} alt="" className="hidden h-full w-full scale-110 object-contain dark:block" />
-                <Image src="/logo2.png" width={36} height={36} alt="" className="block h-full w-full scale-110 object-contain grayscale dark:hidden" />
-              </div>
-              <div className="flex flex-col items-start">
-                <span className={cn(brandFont.className, 'font-normal text-foreground')}>
-                  {SITE_CONFIG.name}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  {SITE_CONFIG.role}
-                </span>
-              </div>
-            </Link>
+    <footer id="footer" role="contentinfo" className={styles.footer}>
+      <div ref={directoryRef} data-revealed={directoryVisible} className={`section-container ${styles.directory}`}>
+        <div className={styles.contact}>
+          <div className={styles.identity}>
+            <TransitionLink href="/" aria-label={homeLabel} className={styles.monogram}>
+              <Image src="/logo1.png" width={36} height={36} alt="" className="hidden size-full scale-110 object-contain dark:block" />
+              <Image src="/logo2.png" width={36} height={36} alt="" className="size-full scale-110 object-contain grayscale dark:hidden" />
+            </TransitionLink>
+            <span>{SITE_CONFIG.role}</span>
           </div>
+          <a href={`mailto:${SITE_CONFIG.email}`} className={styles.email}>
+            <span className="link-ink">{SITE_CONFIG.email}</span>
+          </a>
+          <small className={styles.copyright}>© {new Date().getFullYear()} {SITE_CONFIG.name}</small>
+        </div>
 
-          {/* Center — Nav links */}
-          <nav aria-label="Footer navigation">
-            <ul className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2" role="list">
-              {NAV_LINKS.filter(link => link.label !== 'Contacts').map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={pathname === '/' ? link.href : `/${link.href}`}
-                    className={cn(
-                      'relative text-sm font-medium text-muted-foreground transition-colors duration-200',
-                      'hover:text-foreground',
-                      'after:absolute after:bottom-[-3px] after:left-0 after:h-[1.5px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm',
-                    )}
-                  >
-                    {intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+        <nav aria-labelledby="footer-sections">
+          <h2 id="footer-sections" className={styles.label}>{intl.formatMessage({ id: 'footer.sections' })}</h2>
+          <ul className={styles.links}>
+            {NAV_LINKS.filter((link) => link.href !== '#contact').map((link) => (
+              <li key={link.href}>
+                <TransitionLink href={pathname === '/' ? link.href : `/${link.href}`}>
+                  <span className="link-ink">{intl.formatMessage({ id: `nav.${link.label.toLowerCase()}` })}</span>
+                </TransitionLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-          {/* Right — Social links */}
-          <ul className="flex items-center gap-3" role="list" aria-label="Social links">
+        <div>
+          <h2 id="footer-profiles" className={styles.label}>{intl.formatMessage({ id: 'footer.profiles' })}</h2>
+          <ul className={styles.links} aria-labelledby="footer-profiles">
             {SOCIAL_LINKS.map((social) => {
-              const Icon = SOCIAL_ICONS[social.platform]
-              if (!Icon) return null
-
+              const Icon = socialIcons[social.platform]
               return (
-                <li key={social.platform}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.ariaLabel}
-                    className={cn(
-                      'flex h-9 w-9 items-center justify-center rounded-md',
-                      'text-muted-foreground transition-all duration-200',
-                      'hover:bg-secondary hover:text-foreground',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-                    )}
-                  >
-                    <Icon className="h-4 w-4" aria-hidden={true} />
+                <li key={social.href}>
+                  <a href={social.href} target="_blank" rel="noopener noreferrer">
+                    {Icon && <Icon className={styles.socialIcon} aria-hidden="true" />}
+                    <span className="link-ink">{social.platform}</span>
+                    <ArrowUpRight className={styles.externalArrow} aria-hidden="true" />
                   </a>
                 </li>
               )
             })}
           </ul>
         </div>
+      </div>
 
-        {/* Bottom — copyright */}
-        <div className="mt-8 border-t border-border pt-6 text-center">
-          <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} {SITE_CONFIG.name}
-          </p>
-        </div>
+      <div className={styles.landscape} aria-hidden="true">
+        <svg
+          ref={signatureRef}
+          data-revealed={signatureVisible}
+          className={`${brandFont.className} ${styles.signature}`}
+          viewBox="0 0 1000 113"
+          focusable="false"
+        >
+          <text x="0" y="103" textLength="1000" lengthAdjust="spacingAndGlyphs">{SITE_CONFIG.name}</text>
+        </svg>
+        <FooterRidges />
       </div>
     </footer>
   )

@@ -1,39 +1,42 @@
 'use client'
 
-import { useState } from 'react'
-import { Mail, CheckCircle2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Check, Copy } from 'lucide-react'
 import { SITE_CONFIG } from '@/lib/constants'
+import { ContactLinks } from '@/components/contact-links'
 import { SectionHeading } from '@/components/section-heading'
 import { ScrollReveal } from '@/components/scroll-reveal'
 import { cn } from '@/lib/utils'
 import { useIntl } from 'react-intl'
 
 export function Contact() {
-  const [copied, setCopied] = useState(false)
+  const [copyMessage, setCopyMessage] = useState<'contact.emailCopied' | 'contact.copyManually' | null>(null)
   const intl = useIntl()
 
-  const handleContactClick = async () => {
-    // Keep the mailto link working even when clipboard access is unavailable.
+  useEffect(() => {
+    if (!copyMessage) return
+    const timer = window.setTimeout(() => setCopyMessage(null), 3000)
+    return () => window.clearTimeout(timer)
+  }, [copyMessage])
+
+  const copyEmail = async () => {
     try {
       await navigator.clipboard.writeText(SITE_CONFIG.email)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 3000)
+      setCopyMessage('contact.emailCopied')
     } catch {
-      setCopied(false)
+      setCopyMessage('contact.copyManually')
     }
   }
 
   return (
-    <section id="contact" className="section-spacing section-container">
+    <section id="contact" aria-labelledby="contact-heading" className="section-spacing section-container">
       <ScrollReveal>
         <div className={cn(
-          'relative flex min-h-[50svh] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
-          'border border-surface-border bg-card/50 shadow-lg backdrop-blur-md',
+          'contact-paper relative isolate flex min-h-[50svh] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
+          'border border-surface-border bg-card',
         )}>
-          {/* Subtle background glow */}
-          <div className="absolute inset-0 -z-10 bg-[var(--gradient-glow)] opacity-50 mix-blend-screen" />
-
           <SectionHeading
+            id="contact-heading"
             eyebrow={intl.formatMessage({ id: 'contact.eyebrow' })}
             heading={intl.formatMessage({ id: 'contact.heading' })}
             description={intl.formatMessage({ id: 'contact.description' })}
@@ -41,25 +44,22 @@ export function Contact() {
             className="mb-8"
           />
 
-          <a
-            href={`mailto:${SITE_CONFIG.email}`}
-            onClick={handleContactClick}
-            className={cn(
-              'group relative inline-flex h-14 items-center justify-center gap-3 overflow-hidden rounded-full px-8 text-base font-semibold text-primary-foreground',
-              'bg-primary shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-intense',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
-            )}
-          >
-            <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
-              <div className="relative h-full w-12 bg-white/20" />
-            </div>
-            {copied ? (
-              <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <Mail className="h-5 w-5" aria-hidden="true" />
-            )}
-            {copied ? intl.formatMessage({ id: 'contact.emailCopied' }) : intl.formatMessage({ id: 'contact.sayHello' })}
-          </a>
+          <ContactLinks />
+          <div className="mt-3 flex items-center gap-1 text-sm text-muted-foreground">
+            <span className="select-all">{SITE_CONFIG.email}</span>
+            <button
+              type="button"
+              onClick={copyEmail}
+              aria-label={intl.formatMessage({ id: 'contact.copyEmail' })}
+              title={intl.formatMessage({ id: 'contact.copyEmail' })}
+              className="inline-grid size-9 place-items-center rounded-md transition-colors duration-200 hover:bg-secondary hover:text-foreground"
+            >
+              {copyMessage === 'contact.emailCopied' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+            </button>
+          </div>
+          <p role="status" className="min-h-4 text-xs text-muted-foreground">
+            {copyMessage && intl.formatMessage({ id: copyMessage })}
+          </p>
         </div>
       </ScrollReveal>
     </section>

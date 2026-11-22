@@ -2,6 +2,7 @@
 // Composes all portfolio sections. No business logic here.
 // Sections are added one at a time as they are built (Stages 2–7).
 
+import { Suspense } from 'react'
 import { Hero } from '@/components/hero'
 import { Projects } from '@/components/projects'
 import { About } from '@/components/about'
@@ -14,17 +15,11 @@ export default function HomePage() {
       {/* Stage 2: Hero */}
       <Hero />
 
-      {/* Stage 3+4: Projects */}
-      <Projects />
-
-      {/* Stage 5: About */}
-      <About />
-
-      {/* Stage 6: Skills */}
-      <Skills />
-
-      {/* Stage 7: Contact */}
-      <Contact />
+      {/* Each server-rendered section can hydrate independently of the first screen. */}
+      <Suspense fallback={null}><Projects /></Suspense>
+      <Suspense fallback={null}><About /></Suspense>
+      <Suspense fallback={null}><Skills /></Suspense>
+      <Suspense fallback={null}><Contact /></Suspense>
     </>
   )
 }

@@ -1,5 +1,5 @@
 'use client'
-import { createContext, useContext, useEffect, useSyncExternalStore } from 'react'
+import { createContext, useContext, useDeferredValue, useEffect, useMemo, useSyncExternalStore } from 'react'
 import { IntlProvider } from 'react-intl'
 import enMessages from '@/locales/en.json'
 import ruMessages from '@/locales/ru.json'
@@ -36,11 +36,15 @@ function setLocale(locale: Locale) {
 const serverLocale = (): Locale => 'en'
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const locale = useSyncExternalStore(subscribe, getLocale, serverLocale)
+  const preference = useSyncExternalStore(subscribe, getLocale, serverLocale)
+  const locale = useDeferredValue(preference)
+  const context = useMemo(() => ({ locale, setLocale }), [locale])
   const intlLocale = locale === 'kz' ? 'kk' : locale
-  useEffect(() => { document.documentElement.lang = intlLocale }, [intlLocale])
+  useEffect(() => {
+    if (document.documentElement.lang !== intlLocale) document.documentElement.lang = intlLocale
+  }, [intlLocale])
   return (
-    <LanguageContext.Provider value={{ locale, setLocale }}>
+    <LanguageContext.Provider value={context}>
       <IntlProvider messages={messages[locale]} locale={intlLocale} defaultLocale="en">{children}</IntlProvider>
     </LanguageContext.Provider>
   )
