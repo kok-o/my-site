@@ -2,20 +2,26 @@
 
 import { Mail } from 'lucide-react'
 import { useIntl } from 'react-intl'
+import { useContactDialog } from '@/components/contact-dialog'
 import { TelegramIcon } from '@/components/icons'
 import { buttonVariants } from '@/components/ui/button'
 import { SITE_CONFIG } from '@/lib/constants'
 
 export function ContactLinks() {
   const intl = useIntl()
+  const { openContactDialog } = useContactDialog()
   const buttonClass = 'h-11 gap-2 rounded-full px-5'
 
   return (
-    <div className="flex w-full flex-col gap-2 min-[480px]:w-fit min-[480px]:flex-row">
-      <a href={`mailto:${SITE_CONFIG.email}`} className={buttonVariants({ className: buttonClass })}>
+    <div className="flex w-full flex-col gap-2.5 min-[480px]:w-fit min-[480px]:flex-row">
+      <button
+        type="button"
+        onClick={openContactDialog}
+        className={buttonVariants({ className: `${buttonClass} cursor-pointer` })}
+      >
         <Mail className="size-4" aria-hidden="true" />
         {intl.formatMessage({ id: 'contact.sayHello' })}
-      </a>
+      </button>
       <a
         href={SITE_CONFIG.telegram}
         target="_blank"

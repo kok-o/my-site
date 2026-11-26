@@ -23,7 +23,6 @@ export function Projects() {
         heading={intl.formatMessage({ id: 'projects.heading' })}
         description={intl.formatMessage({ id: 'projects.description' })}
         align="center"
-        compact
         className="mb-8"
       />
 

@@ -220,9 +220,6 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    /* Subtle gradient glow at the very top of the page */
-    background-image: var(--gradient-glow);
-    background-repeat: no-repeat;
     transition: background-color 300ms ease, color 300ms ease;
   }
 
@@ -375,6 +372,45 @@
               radial-gradient(ellipse 42% 70% at 100% 0%, black, transparent 95%);
 }
 
+.surface-paper {
+  --surface-base: color-mix(in srgb, var(--background) 97%, var(--foreground));
+  --surface-lit: var(--card);
+  --surface-grain-opacity: 0.055;
+  --surface-dot-opacity: 0.11;
+  background: radial-gradient(ellipse 110% 90% at 0% 0%, var(--surface-lit), var(--surface-base) 78%);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+
+.dark .surface-paper {
+  --surface-base: color-mix(in srgb, var(--foreground) 3%, var(--background));
+  --surface-lit: color-mix(in srgb, var(--foreground) 7.5%, var(--background));
+  --surface-grain-opacity: 0.04;
+  --surface-dot-opacity: 0.13;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+.surface-paper::before,
+.surface-paper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.surface-paper::before {
+  background: url('/hero-grain.png') repeat;
+  opacity: var(--surface-grain-opacity);
+}
+
+.surface-paper::after {
+  background: radial-gradient(circle at 1px 1px, var(--folio-ink) 0.65px, transparent 1.05px) 0 0 / 12px 12px;
+  opacity: var(--surface-dot-opacity);
+  mask-image: radial-gradient(ellipse 55% 75% at 100% 0%, black, transparent 88%),
+              radial-gradient(ellipse 45% 65% at 0% 100%, black, transparent 90%);
+}
+
 @layer utilities {
   /* Gradient accent text */
   .text-gradient {
@@ -448,9 +484,9 @@
   #contact.section-spacing {
     /* Avoid stacking a large contact gap after the centered stack section. */
     --section-padding: 2rem;
-    padding-bottom: 3rem;
-    /* Land the card just below the upper fifth of the viewport, clear of the navbar. */
-    scroll-margin-top: calc(max(0px, 22.5svh - var(--anchor-offset)) - var(--section-padding));
+    padding-bottom: 2.25rem;
+    /* Frame the contact card cleanly below the navbar with the footer links peeking below. */
+    scroll-margin-top: calc(max(0px, 15.5svh - var(--anchor-offset)) - var(--section-padding));
   }
 }
 

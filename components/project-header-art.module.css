@@ -1,5 +1,46 @@
 .frame {
+  position: relative;
+  isolation: isolate;
   container-type: inline-size;
+  overflow-x: clip;
+}
+
+.pageGlow {
+  --glow-core: color-mix(in srgb, var(--foreground) 6%, transparent);
+  --glow-mid: color-mix(in srgb, var(--foreground) 2.5%, transparent);
+  --glow-dot: color-mix(in srgb, var(--foreground) 9%, transparent);
+  position: absolute;
+  top: 0;
+  inset-inline: 0;
+  z-index: -2;
+  height: min(46rem, 88svh);
+  pointer-events: none;
+  background: radial-gradient(ellipse 74% 62% at 50% -8%, var(--glow-core) 0%, var(--glow-mid) 40%, transparent 74%);
+}
+
+:global(.dark) .pageGlow {
+  --glow-core: rgb(255 255 255 / 11%);
+  --glow-mid: rgb(255 255 255 / 4.2%);
+  --glow-dot: rgb(255 255 255 / 8%);
+}
+
+.pageGlow::before,
+.pageGlow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pageGlow::before {
+  background: url('/hero-grain.png') repeat;
+  opacity: 0.045;
+  mask-image: linear-gradient(to bottom, black 35%, transparent 92%);
+}
+
+.pageGlow::after {
+  background: radial-gradient(circle at 1px 1px, var(--glow-dot) 0.8px, transparent 1.15px) 0 0 / 20px 20px;
+  mask-image: radial-gradient(ellipse 70% 62% at 50% 8%, black 12%, transparent 78%);
 }
 
 .header, .illustratedHeader {
@@ -11,26 +52,26 @@
   --ink: 62 83 94;
   position: absolute;
   z-index: -1;
-  inset-block: -5rem;
+  inset-block: -1.5rem;
   right: calc((100% - 100cqw) / 2);
-  width: 65cqw;
+  width: 56cqw;
   overflow: hidden;
   pointer-events: none;
-  mask-image: radial-gradient(ellipse 72% 64% at 72% 45%, black, rgb(0 0 0 / 78%) 48%, transparent);
+  mask-image: radial-gradient(ellipse 68% 60% at 74% 48%, black, rgb(0 0 0 / 60%) 45%, transparent 88%);
 }
 
-:global(.dark) .art { --ink: 177 200 208; }
+:global(.dark) .art { --ink: 160 190 201; }
 
 .drawing {
   width: 100%;
   height: 100%;
-  color: rgb(var(--ink) / 34%);
+  color: rgb(var(--ink) / 24%);
 }
 
 .drawing :is(path, circle, rect) { vector-effect: non-scaling-stroke; }
 
 .grid {
-  --line: rgb(var(--ink) / 17%);
+  --line: rgb(var(--ink) / 13%);
   --step: 36px;
   background-image: linear-gradient(to right, var(--line) 1px, transparent 1px),
     linear-gradient(to bottom, var(--line) 1px, transparent 1px);
@@ -43,16 +84,16 @@
   left: calc(round(down, var(--x), var(--step)) + 1px);
   width: calc(var(--step) - 1px);
   height: calc(var(--step) - 1px);
-  background-color: rgb(var(--ink) / 16%);
-  opacity: 0.65;
+  background-color: rgb(var(--ink) / 11%);
+  opacity: 0.45;
 }
 
 @media (width < 48rem) {
   .art {
-    inset-block: -2rem;
-    width: 53cqw;
-    opacity: 0.65;
-    mask-image: radial-gradient(ellipse 90% 70% at 110% 40%, black 8%, transparent);
+    inset-block: -1rem;
+    width: 48cqw;
+    opacity: 0.55;
+    mask-image: radial-gradient(ellipse 85% 65% at 105% 42%, black 5%, transparent 85%);
   }
   .grid { --step: 26px; }
 }
@@ -61,10 +102,10 @@
   position: relative;
   inset: auto;
   width: 100%;
-  height: clamp(7.5rem, 30vw, 10rem);
-  margin-top: 1.25rem;
+  height: clamp(6.5rem, 26vw, 8.75rem);
+  margin-top: 1rem;
   opacity: 1;
-  mask-image: radial-gradient(ellipse 80% 85% at 52% 50%, black 20%, rgb(0 0 0 / 84%) 60%, transparent);
+  mask-image: radial-gradient(ellipse 76% 80% at 52% 50%, black 18%, rgb(0 0 0 / 72%) 56%, transparent 92%);
 }
 
 @media (width >= 64rem) {
@@ -75,13 +116,13 @@
     margin-inline-end: calc((100% - 100cqw) / 2);
   }
   .illustratedHeader > :not(.art) { grid-column: 1; }
-  .illustratedHeader h1 { font-size: clamp(4.25rem, 6.7cqw, 6rem); }
+  .illustratedHeader h1 { font-size: clamp(4rem, 6.2cqw, 5.5rem); }
   .illustratedHeader .art {
     grid-column: 2;
     grid-row: 1 / span 3;
     width: auto;
     height: auto;
-    margin: -2rem 0;
+    margin: -1rem 0;
   }
   .illustratedHeader .drawing { position: absolute; inset: 0; }
 }
@@ -96,10 +137,10 @@
 
 @keyframes signal {
   0%, 70%, 100% { opacity: 0.3; }
-  30%, 45% { opacity: 1; }
+  30%, 45% { opacity: 0.85; }
 }
 
 @keyframes illuminate {
-  0%, 68%, 100% { opacity: 0.08; }
-  28%, 40% { opacity: 1; }
+  0%, 68%, 100% { opacity: 0.06; }
+  28%, 40% { opacity: 0.72; }
 }

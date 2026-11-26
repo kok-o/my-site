@@ -1,10 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
-import { FileText, ExternalLink, ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { createPortal } from 'react-dom'
+import { FileText, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react'
 import { GitHubIcon } from '@/components/icons'
+import { ImageLightbox } from '@/components/image-lightbox'
 import { type Project } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { useTheme } from 'next-themes'
@@ -118,14 +117,6 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
   const opener = useRef<HTMLButtonElement | null>(null)
-  const mountLightbox = useCallback((dialog: HTMLDialogElement | null) => {
-    if (!dialog) return
-    dialog.showModal()
-    return () => {
-      dialog.close()
-      opener.current?.focus({ preventScroll: true })
-    }
-  }, [])
 
   const scrollPrev = useCallback(() => {
     if (emblaApi) emblaApi.scrollPrev()
@@ -154,31 +145,14 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
     }
   }, [emblaApi, onSelect])
 
-  useEffect(() => {
-    if (!isLightboxOpen) return
-    const previousOverflow = document.body.style.overflow
-    const previousPaddingRight = document.body.style.paddingRight
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-    if (scrollbarWidth > 0) {
-      const paddingRight = parseFloat(getComputedStyle(document.body).paddingRight) || 0
-      document.body.style.paddingRight = `${paddingRight + scrollbarWidth}px`
-    }
-    document.body.style.overflow = 'hidden'
-    
-    return () => {
-      document.body.style.overflow = previousOverflow
-      document.body.style.paddingRight = previousPaddingRight
-    }
-  }, [isLightboxOpen])
-
   return (
     <>
     <article
       className={cn(
-        'group relative flex flex-col overflow-hidden rounded-2xl',
-        'border border-surface-border bg-card/50 text-card-foreground shadow-sm',
+        'surface-paper group relative isolate flex flex-col overflow-hidden rounded-2xl',
+        'border border-surface-border text-card-foreground',
         'transition-colors duration-300',
-        'hover:border-primary/30 hover:bg-card hover:shadow-glow',
+        'hover:border-[color-mix(in_srgb,var(--folio-ink)_55%,var(--border))]',
         className,
       )}
     >
@@ -186,8 +160,8 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       {/* Image Carousel Container */}
       {/* ------------------------------------------------------------------- */}
       <div className={cn(
-        'relative aspect-video w-full overflow-hidden border-b border-border/50 group/carousel [content-visibility:auto]',
-        project.id === 'ai-miky' ? 'bg-secondary/30' : 'bg-black/20',
+        'relative aspect-video w-full overflow-hidden group/carousel [content-visibility:auto]',
+        project.id === 'ai-miky' ? 'bg-secondary/30' : 'bg-transparent',
       )}>
         {project.id !== 'ai-miky' && (
           <div className="absolute inset-0 z-20 bg-background/10 transition-opacity duration-300 group-hover:opacity-0 pointer-events-none" />
@@ -285,7 +259,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
               {intl.formatMessage({ id: `project.${project.id}.title` })}
             </TransitionLink>
           </h3>
-          <span className="shrink-0 text-sm font-medium text-muted-foreground">
+          <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
             {project.year}
           </span>
         </div>
@@ -294,13 +268,13 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
           {intl.formatMessage({ id: `project.${project.id}.description` })}
         </p>
 
-        <div className="mt-auto flex flex-col gap-6">
+        <div className="mt-auto flex flex-col gap-5">
           {/* Tags */}
-          <ul className="flex flex-wrap gap-2" aria-label={intl.formatMessage({ id: 'detail.technologies' })}>
+          <ul className="flex flex-wrap gap-1.5" aria-label={intl.formatMessage({ id: 'detail.technologies' })}>
             {project.tags.map((tag) => (
               <li
                 key={tag}
-                className="inline-flex items-center rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
+                className="inline-flex items-center rounded-md border border-border/80 bg-background/60 px-2 py-0.5 font-mono text-[11px] text-muted-foreground"
               >
                 {tag}
               </li>
@@ -356,80 +330,21 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
       </div>
     </article>
 
-    {mounted && createPortal(
-      <AnimatePresence>
-        {isLightboxOpen && (
-          <motion.dialog
-            ref={mountLightbox}
-            aria-label={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
-            onCancel={(event) => {
-              event.preventDefault()
-              setIsLightboxOpen(false)
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-                event.preventDefault()
-                if (event.key === 'ArrowLeft') scrollPrev()
-                else scrollNext()
-              }
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 m-0 flex h-full max-h-none w-full max-w-none items-center justify-center border-0 bg-black/95 p-4 backdrop-blur-md backdrop:bg-transparent"
-            onClick={() => setIsLightboxOpen(false)}
-          >
-            <button
-              onClick={() => setIsLightboxOpen(false)}
-              className="absolute right-4 top-4 z-[110] rounded-full bg-white/10 p-2 text-white hover:bg-white/25 transition-colors"
-              aria-label={intl.formatMessage({ id: 'project.closePreview' })}
-            >
-              <X className="h-6 w-6" />
-            </button>
-
-            {hasMultipleSlides && (
-              <>
-                <button
-                  onClick={(e) => { e.stopPropagation(); scrollPrev(); }}
-                  className="absolute left-4 md:left-8 top-1/2 z-[110] -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/25 transition-colors"
-                  aria-label={intl.formatMessage({ id: 'detail.previousScreenshot' })}
-                >
-                  <ChevronLeft className="h-8 w-8 md:h-12 md:w-12" />
-                </button>
-                <button
-                  onClick={(e) => { e.stopPropagation(); scrollNext(); }}
-                  className="absolute right-4 md:right-8 top-1/2 z-[110] -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/25 transition-colors"
-                  aria-label={intl.formatMessage({ id: 'detail.nextScreenshot' })}
-                >
-                  <ChevronRight className="h-8 w-8 md:h-12 md:w-12" />
-                </button>
-              </>
-            )}
-            
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative h-full w-full max-h-[90vh] max-w-[90vw]"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Image
-                key={images[selectedIndex] || images[0]}
-                src={images[selectedIndex] || images[0]}
-                alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
-                fill
-                className="object-contain"
-                style={imageStyle}
-                sizes="100vw"
-                priority
-              />
-            </motion.div>
-          </motion.dialog>
-        )}
-      </AnimatePresence>,
-      document.body
-    )}
+    <ImageLightbox
+      open={isLightboxOpen}
+      onClose={() => setIsLightboxOpen(false)}
+      src={images[selectedIndex] || images[0]}
+      alt={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
+      dialogLabel={intl.formatMessage({ id: 'detail.media' }, { project: project.title })}
+      closeLabel={intl.formatMessage({ id: 'project.closePreview' })}
+      prevLabel={hasMultipleSlides ? intl.formatMessage({ id: 'detail.previousScreenshot' }) : undefined}
+      nextLabel={hasMultipleSlides ? intl.formatMessage({ id: 'detail.nextScreenshot' }) : undefined}
+      onPrev={hasMultipleSlides ? scrollPrev : undefined}
+      onNext={hasMultipleSlides ? scrollNext : undefined}
+      counterText={hasMultipleSlides ? intl.formatMessage({ id: 'detail.counter' }, { current: selectedIndex + 1, total: images.length }) : undefined}
+      imageStyle={imageStyle}
+      returnFocusRef={opener}
+    />
     </>
   )
 }

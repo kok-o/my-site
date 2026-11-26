@@ -9,9 +9,12 @@ import { ScrollReveal } from '@/components/scroll-reveal'
 import { cn } from '@/lib/utils'
 import { useIntl } from 'react-intl'
 
+type CopyStatus = 'contact.emailCopied' | 'contact.copyManually' | null
+
 export function Contact() {
-  const [copyMessage, setCopyMessage] = useState<'contact.emailCopied' | 'contact.copyManually' | null>(null)
+  const [copyMessage, setCopyMessage] = useState<CopyStatus>(null)
   const intl = useIntl()
+  const isCopied = copyMessage === 'contact.emailCopied'
 
   useEffect(() => {
     if (!copyMessage) return
@@ -32,7 +35,7 @@ export function Contact() {
     <section id="contact" aria-labelledby="contact-heading" className="section-spacing section-container">
       <ScrollReveal>
         <div className={cn(
-          'contact-paper relative isolate flex min-h-[50svh] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
+          'contact-paper relative isolate flex min-h-[48svh] flex-col items-center justify-center overflow-hidden rounded-3xl p-8 text-center sm:p-16',
           'border border-surface-border bg-card',
         )}>
           <SectionHeading
@@ -45,19 +48,28 @@ export function Contact() {
           />
 
           <ContactLinks />
-          <div className="mt-3 flex items-center gap-1 text-sm text-muted-foreground">
-            <span className="select-all">{SITE_CONFIG.email}</span>
+
+          <div className="mt-4 flex items-center gap-1.5 rounded-full border border-surface-border bg-background/70 py-1 pr-1.5 pl-4 text-sm text-muted-foreground">
+            <span className="select-all font-mono text-xs text-foreground/90 sm:text-sm">{SITE_CONFIG.email}</span>
             <button
               type="button"
-              onClick={copyEmail}
+              onClick={() => void copyEmail()}
               aria-label={intl.formatMessage({ id: 'contact.copyEmail' })}
               title={intl.formatMessage({ id: 'contact.copyEmail' })}
-              className="inline-grid size-9 place-items-center rounded-md transition-colors duration-200 hover:bg-secondary hover:text-foreground"
+              className={cn(
+                'inline-grid size-8 cursor-pointer place-items-center rounded-full transition-colors duration-200',
+                isCopied
+                  ? 'bg-foreground text-background'
+                  : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
+              )}
             >
-              {copyMessage === 'contact.emailCopied' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}
+              {isCopied
+                ? <Check className="size-3.5" aria-hidden="true" />
+                : <Copy className="size-3.5" aria-hidden="true" />}
             </button>
           </div>
-          <p role="status" className="min-h-4 text-xs text-muted-foreground">
+
+          <p role="status" aria-live="polite" className="mt-2 min-h-5 text-xs text-muted-foreground">
             {copyMessage && intl.formatMessage({ id: copyMessage })}
           </p>
         </div>

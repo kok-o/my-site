@@ -1,6 +1,7 @@
 import { PROFILE_HEIGHT, RIDGE_PROFILES } from './footer-ridge-profiles'
 
 const RIDGE_COUNT = RIDGE_PROFILES.length
+const LEVELS = 6
 const SEED = 7
 const BAYER = [
   0, 32, 8, 40, 2, 34, 10, 42, 48, 16, 56, 24, 50, 18, 58, 26,
@@ -48,10 +49,6 @@ function smoothStep(value: number) {
   return t * t * (3 - 2 * t)
 }
 
-function easeOut(value: number) {
-  return 1 - (1 - Math.min(1, Math.max(0, value))) ** 3
-}
-
 function createRidge(width: number, height: number, margin: number, layer: number) {
   const depth = layer / (RIDGE_COUNT - 1)
   const crest = new Float32Array(width + 2 * margin)
@@ -66,19 +63,25 @@ function createRidge(width: number, height: number, margin: number, layer: numbe
     const left = Math.floor(position)
     const rise = profile[Math.min(left + 1, last)] - profile[left]
     crest[x] = (profile[left] + rise * (position - left)) * height / PROFILE_HEIGHT
-    mistDepth[x] = height * (0.08 + 0.42 * depth) * (0.45 + 1.1 * fractal(u * 4, layer * 5.3, SEED + 9, 2))
+    mistDepth[x] = height * (0.09 + 0.4 * depth) * (0.45 + 1.1 * fractal(u * 4, layer * 5.3, SEED + 9, 2))
   }
-  return { crest, mistDepth, depth, tone: 0.16 + 0.76 * depth ** 1.6 }
+  return { crest, mistDepth, depth, tone: 0.52 + 0.44 * depth }
+}
+
+export type RidgePalette = {
+  farInk: readonly [number, number, number]
+  nearInk: readonly [number, number, number]
+  crestBoost: number
 }
 
 type RidgeFrame = {
-  age: number
+  progress: number
   fogTime: number
   pointerX: number
   pointerY: number
   clearing: number
   parallax: number
-  ink: readonly [number, number, number]
+  palette: RidgePalette
 }
 
 export function createRidgeRenderer(ctx: CanvasRenderingContext2D, width: number, height: number, pixelSize: number) {
@@ -89,27 +92,46 @@ export function createRidgeRenderer(ctx: CanvasRenderingContext2D, width: number
   const fogWidth = Math.ceil(width / 2)
   const fogHeight = Math.ceil(height / 2)
   const mist = new Float32Array(fogWidth * fogHeight)
-  const fade = Float32Array.from({ length: height }, (_, y) => smoothStep(y / (height * 0.3)))
+  const fade = Float32Array.from({ length: height }, (_, y) => smoothStep(y / (height * 0.14)))
   const clearingX = new Float32Array(width)
   const clearingY = new Float32Array(height)
   const radius = Math.max(1, 130 / pixelSize)
-  const palette = new Uint32Array(6)
-  const rgba = new Uint8ClampedArray(palette.buffer)
+  const layerPalettes = new Uint32Array(RIDGE_COUNT * LEVELS)
+  const rgba = new Uint8ClampedArray(layerPalettes.buffer)
   const lowerEdge = new Int32Array(width)
+  let cachedPaletteKey = ''
 
-  return function draw({ age, fogTime, pointerX, pointerY, clearing, parallax, ink }: RidgeFrame) {
-    for (let level = 1; level < palette.length; level++) {
-      const channel = level * 4
-      rgba[channel] = ink[0]
-      rgba[channel + 1] = ink[1]
-      rgba[channel + 2] = ink[2]
-      rgba[channel + 3] = 255 * level / (palette.length - 1)
+  return function draw({ progress, fogTime, pointerX, pointerY, clearing, parallax, palette }: RidgeFrame) {
+    const paletteKey = `${palette.farInk.join(',')}|${palette.nearInk.join(',')}|${palette.crestBoost}`
+    if (paletteKey !== cachedPaletteKey) {
+      cachedPaletteKey = paletteKey
+      const { farInk, nearInk, crestBoost } = palette
+      for (let layer = 0; layer < RIDGE_COUNT; layer++) {
+        const depth = layer / (RIDGE_COUNT - 1)
+        const mix = depth ** 0.85
+        const baseR = farInk[0] + (nearInk[0] - farInk[0]) * mix
+        const baseG = farInk[1] + (nearInk[1] - farInk[1]) * mix
+        const baseB = farInk[2] + (nearInk[2] - farInk[2]) * mix
+        const baseOffset = layer * LEVELS
+        layerPalettes[baseOffset] = 0
+        for (let level = 1; level < LEVELS; level++) {
+          // Highest dither steps catch a subtle rim tint along the ridge crest.
+          const rim = level === LEVELS - 1 ? crestBoost * (0.4 + 0.6 * depth) : level === LEVELS - 2 ? crestBoost * 0.25 * depth : 0
+          const channel = (baseOffset + level) * 4
+          rgba[channel] = Math.round(baseR + (farInk[0] - baseR) * rim)
+          rgba[channel + 1] = Math.round(baseG + (farInk[1] - baseG) * rim)
+          rgba[channel + 2] = Math.round(baseB + (farInk[2] - baseB) * rim)
+          rgba[channel + 3] = Math.round(255 * level / (LEVELS - 1))
+        }
+      }
     }
+
     pixels.fill(0)
-    if (age <= 380) {
+    if (progress <= 0.005) {
       ctx.putImageData(image, 0, 0)
       return
     }
+
     lowerEdge.fill(height)
     for (let y = 0; y < fogHeight; y++) {
       const ny = y * 4.4 / height
@@ -117,7 +139,7 @@ export function createRidgeRenderer(ctx: CanvasRenderingContext2D, width: number
         const nx = x * 9 / width + fogTime
         const warp = noise(nx * 0.45 - fogTime * 0.6, ny * 0.8, 77) * 0.6
         const density = fractal(nx + warp, ny + warp * 0.4, 31, 3)
-        mist[y * fogWidth + x] = smoothStep((density - 0.3) / 0.44)
+        mist[y * fogWidth + x] = smoothStep((density - 0.32) / 0.44)
       }
     }
     if (clearing > 0.001) {
@@ -131,14 +153,18 @@ export function createRidgeRenderer(ctx: CanvasRenderingContext2D, width: number
       }
     }
 
-    const mistLift = 1 - easeOut((age - 900) / 1800)
+    const mistLift = 1 - smoothStep((progress - 0.15) / 0.85)
     // A foreground ridge clips those behind it. Visit each visible pixel once
     // and keep the sky transparent for the signature underneath the canvas.
     for (let layer = RIDGE_COUNT - 1; layer >= 0; layer--) {
-      const reveal = easeOut((age - 380 - layer * 170) / 1300)
       const ridge = ridges[layer]
-      const rise = (1 - reveal) * height * 0.09
+      const layerStart = 0.03 + ridge.depth * 0.17
+      const reveal = smoothStep((progress - layerStart) / (1 - layerStart))
+      if (reveal <= 0.002) continue
+      const rise = (1 - reveal) * height * (0.48 + 0.4 * ridge.depth)
       const shift = Math.round(parallax * (0.25 + ridge.depth) * 0.75 * (margin - 3))
+      const paletteBase = layer * LEVELS
+
       for (let x = 0; x < width; x++) {
         const at = x + margin + shift
         const top = ridge.crest[at] + rise
@@ -146,22 +172,23 @@ export function createRidgeRenderer(ctx: CanvasRenderingContext2D, width: number
         const end = lowerEdge[x]
         if (start >= end) continue
         lowerEdge[x] = start
-        const slope = Math.min(0.2, Math.max(-0.2, (ridge.crest[at + 2] - ridge.crest[at - 2]) * 0.06))
+        const slope = Math.min(0.18, Math.max(-0.18, (ridge.crest[at + 2] - ridge.crest[at - 2]) * 0.06))
         const inverseDepth = 1 / ridge.mistDepth[at]
         const grainX = x + Math.round(top * 7)
         for (let y = start; y < end; y++) {
           const distance = y - top
           const valley = distance * inverseDepth
-          const crest = 1 - smoothStep(valley) * (0.24 - 0.12 * ridge.depth)
-          const grain = (hash(grainX, Math.floor(distance), layer) - 0.5) * 0.07 * ridge.depth
+          const crestRim = distance < 3.5 ? (1 - distance / 3.5) * palette.crestBoost * 0.55 : 0
+          const crest = 1 - smoothStep(valley) * (0.28 - 0.1 * ridge.depth)
+          const grain = (hash(grainX, Math.floor(distance), layer) - 0.5) * 0.08
           const localClear = clearing > 0.001 ? clearingX[x] * clearingY[y] : 0
-          const tone = Math.min(0.93, (ridge.tone * crest + slope * (1 - smoothStep(2 * valley)) + grain + localClear * 0.16) * reveal)
-          const density = mist[(y >> 1) * fogWidth + (x >> 1)] * 0.8 * (0.95 - 0.5 * ridge.depth)
-          const haze = Math.min(1, density * (1 - localClear * 0.92) + mistLift * 0.55)
-          const alpha = (tone * (1 - haze) + 0.09 * haze * (1 - mistLift)) * fade[y]
+          const tone = Math.min(0.98, (ridge.tone * crest + crestRim + slope * (1 - smoothStep(2 * valley)) + grain + localClear * 0.16) * reveal)
+          const density = mist[(y >> 1) * fogWidth + (x >> 1)] * 0.65 * (0.92 - 0.45 * ridge.depth)
+          const haze = Math.min(0.88, density * (1 - localClear * 0.92) + mistLift * 0.35)
+          const alpha = (tone * (1 - haze) + 0.08 * haze * (1 - mistLift)) * fade[y]
           const threshold = BAYER[(y & 7) * 8 + (x & 7)]
-          const level = Math.floor(Math.max(0, alpha) * (palette.length - 1) + threshold)
-          pixels[y * width + x] = palette[level]
+          const level = Math.min(LEVELS - 1, Math.floor(Math.max(0, alpha) * (LEVELS - 1) + threshold))
+          pixels[y * width + x] = layerPalettes[paletteBase + level]
         }
       }
     }

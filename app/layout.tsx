@@ -76,6 +76,8 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
+  const directEmailEnabled = Boolean(process.env.RESEND_API_KEY || process.env.WEB3FORMS_ACCESS_KEY)
+
   return (
     <ViewTransitions>
       <html
@@ -85,7 +87,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         suppressHydrationWarning
       >
         <body className="relative flex min-h-full flex-col antialiased">
-          <Providers>
+          <Providers directEmailEnabled={directEmailEnabled}>
             <ScrollRestoration />
             {/* Skip to main content — keyboard accessibility */}
             <a

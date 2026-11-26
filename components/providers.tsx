@@ -6,14 +6,16 @@
 
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'
 import type { ReactNode } from 'react'
+import { ContactDialogProvider } from '@/components/contact-dialog'
 import { LanguageProvider } from '@/components/language-provider'
 import InkSpillThemeSwitch from '@/components/ui/ink-spill-theme-switch'
 
 interface ProvidersProps {
   children: ReactNode
+  directEmailEnabled?: boolean
 }
 
-function PortfolioThemeSpill({ children }: ProvidersProps) {
+function PortfolioThemeSpill({ children }: { children: ReactNode }) {
   const { resolvedTheme, setTheme } = useTheme()
   return (
     <InkSpillThemeSwitch
@@ -27,7 +29,7 @@ function PortfolioThemeSpill({ children }: ProvidersProps) {
   )
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children, directEmailEnabled = false }: ProvidersProps) {
   return (
     <LanguageProvider>
       <NextThemesProvider
@@ -35,7 +37,9 @@ export function Providers({ children }: ProvidersProps) {
         defaultTheme="dark"
         enableSystem
       >
-        <PortfolioThemeSpill>{children}</PortfolioThemeSpill>
+        <ContactDialogProvider directEmailEnabled={directEmailEnabled}>
+          <PortfolioThemeSpill>{children}</PortfolioThemeSpill>
+        </ContactDialogProvider>
       </NextThemesProvider>
     </LanguageProvider>
   )

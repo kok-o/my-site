@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useIntl } from 'react-intl'
 import { SectionHeading } from '@/components/section-heading'
@@ -10,23 +10,6 @@ import { SKILLS } from '@/lib/constants'
 import { useReducedMotion } from '@/lib/use-reduced-motion'
 import styles from './skills.module.css'
 
-let stackUsed = false
-const hintListeners = new Set<() => void>()
-const subscribeHint = (listener: () => void) => {
-  hintListeners.add(listener)
-  return () => { hintListeners.delete(listener) }
-}
-const serverHintSnapshot = () => false
-const hintSnapshot = () => {
-  try { return stackUsed || sessionStorage.getItem('portfolio-stack-used') === '1' }
-  catch { return stackUsed }
-}
-function markStackUsed() {
-  stackUsed = true
-  try { sessionStorage.setItem('portfolio-stack-used', '1') } catch { /* Keep the in-memory visit state. */ }
-  hintListeners.forEach((listener) => listener())
-}
-
 export function Skills() {
   const intl = useIntl()
   const prefersReducedMotion = useReducedMotion()
@@ -34,7 +17,6 @@ export function Skills() {
   const [skillIndex, setSkillIndex] = useState(0)
   const [open, setOpen] = useState(false)
   const [edges, setEdges] = useState({ start: true, end: true })
-  const hasInteracted = useSyncExternalStore(subscribeHint, hintSnapshot, serverHintSnapshot)
   const rail = useRef<HTMLDivElement>(null)
   const selectedButton = useRef<HTMLButtonElement | null>(null)
   useHangingBadges(rail, prefersReducedMotion)
@@ -127,66 +109,69 @@ export function Skills() {
         className="mb-8 sm:mb-12"
       />
 
-      <div ref={rail} className={styles.viewport}>
-        <div className={styles.track} style={{ '--skill-count': SKILLS.length } as CSSProperties}>
-          <ul className={styles.rail} aria-labelledby="skills-heading">
-            {SKILLS.map((skill, index) => {
-              const active = open && skillIndex === index
-              return (
-                <li key={skill.name} className={styles.item}>
-                  <button
-                    type="button"
-                    data-skill-name={skill.name}
-                    aria-expanded={active}
-                    aria-controls="skill-usage-panel"
-                    aria-label={active ? `${skill.name}. ${intl.formatMessage({ id: 'skills.close' })}` : skill.name}
-                    className={styles.trigger}
-                    onKeyDown={(event) => handleBadgeKey(event, index)}
-                    onClick={(event) => {
-                      const keyboard = event.detail === 0
-                      setKeyboardSelection(keyboard)
-                      if (!hasInteracted) markStackUsed()
-                      if (active) {
-                        closePanel()
-                        return
-                      }
-                      selectedButton.current = event.currentTarget
-                      revealButton(event.currentTarget, keyboard || prefersReducedMotion)
-                      setSkillIndex(index)
-                      setOpen(true)
-                    }}
-                  >
-                    <span className={styles.hanger} data-skill-hanger="">
-                      <span className={styles.plate}>
-                        {skill.icon && (
-                          <span aria-hidden="true" className={styles.logo} style={{ maskImage: `url(${skill.icon})` }} />
-                        )}
-                        <span className={styles.name}>{skill.name}</span>
+      <div className={styles.stage}>
+        <div
+          ref={rail}
+          data-fade-start={!edges.start || undefined}
+          data-fade-end={!edges.end || undefined}
+          className={styles.viewport}
+        >
+          <div className={styles.track} style={{ '--skill-count': SKILLS.length } as CSSProperties}>
+            <ul className={styles.rail} aria-labelledby="skills-heading">
+              {SKILLS.map((skill, index) => {
+                const active = open && skillIndex === index
+                return (
+                  <li key={skill.name} className={styles.item}>
+                    <button
+                      type="button"
+                      data-skill-name={skill.name}
+                      aria-expanded={active}
+                      aria-controls="skill-usage-panel"
+                      aria-label={active ? `${skill.name}. ${intl.formatMessage({ id: 'skills.close' })}` : skill.name}
+                      className={styles.trigger}
+                      onKeyDown={(event) => handleBadgeKey(event, index)}
+                      onClick={(event) => {
+                        const keyboard = event.detail === 0
+                        setKeyboardSelection(keyboard)
+                        if (active) {
+                          closePanel()
+                          return
+                        }
+                        selectedButton.current = event.currentTarget
+                        revealButton(event.currentTarget, keyboard || prefersReducedMotion)
+                        setSkillIndex(index)
+                        setOpen(true)
+                      }}
+                    >
+                      <span className={styles.hanger} data-skill-hanger="">
+                        <span className={styles.plate}>
+                          {skill.icon && (
+                            <span aria-hidden="true" className={styles.logo} style={{ maskImage: `url(${skill.icon})` }} />
+                          )}
+                          <span className={styles.name}>{skill.name}</span>
+                        </span>
                       </span>
-                    </span>
-                  </button>
-                </li>
-              )
-            })}
-          </ul>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </div>
+
+        {(!edges.start || !edges.end) && (
+          <div className="mt-1 flex justify-end gap-1">
+            <button type="button" className={styles.arrow} disabled={edges.start} aria-label={intl.formatMessage({ id: 'skills.scrollBack' })} onClick={() => moveAlongRail(-1)}>
+              <ChevronLeft size={18} aria-hidden="true" />
+            </button>
+            <button type="button" className={styles.arrow} disabled={edges.end} aria-label={intl.formatMessage({ id: 'skills.scrollForward' })} onClick={() => moveAlongRail(1)}>
+              <ChevronRight size={18} aria-hidden="true" />
+            </button>
+          </div>
+        )}
+
+        <SkillUsagePanel technology={SKILLS[skillIndex].name} open={open} reducedMotion={prefersReducedMotion || keyboardSelection} />
       </div>
-
-      {(!edges.start || !edges.end) && (
-        <div className="mt-1 flex justify-end gap-1">
-          <button type="button" className={styles.arrow} disabled={edges.start} aria-label={intl.formatMessage({ id: 'skills.scrollBack' })} onClick={() => moveAlongRail(-1)}>
-            <ChevronLeft size={18} aria-hidden="true" />
-          </button>
-          <button type="button" className={styles.arrow} disabled={edges.end} aria-label={intl.formatMessage({ id: 'skills.scrollForward' })} onClick={() => moveAlongRail(1)}>
-            <ChevronRight size={18} aria-hidden="true" />
-          </button>
-        </div>
-      )}
-
-      <SkillUsagePanel technology={SKILLS[skillIndex].name} open={open} reducedMotion={prefersReducedMotion || keyboardSelection} />
-      {!hasInteracted && !open && (
-        <p className="mt-5 text-center text-xs leading-relaxed text-muted-foreground">{intl.formatMessage({ id: 'skills.hint' })}</p>
-      )}
     </section>
   )
 }

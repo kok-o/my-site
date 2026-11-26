@@ -66,7 +66,7 @@ export function SkillUsagePanel({ technology, open, reducedMotion }: SkillUsageP
       className={styles.usagePanel}
     >
       <div ref={content} className={styles.panelMeasure}>
-        <div className={styles.panelBody} data-multiple={usages.length > 1 || undefined}>
+        <div className={`surface-paper relative isolate overflow-hidden ${styles.panelBody}`} data-multiple={usages.length > 1 || undefined}>
           <h3 id="skill-usage-heading" className={styles.panelTitle}>
             {intl.formatMessage({ id: 'skills.whereUsed' }, { technology })}
           </h3>

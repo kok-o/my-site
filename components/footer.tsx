@@ -7,6 +7,7 @@ import { useInView } from 'motion/react'
 import { ArrowUpRight } from 'lucide-react'
 import { useIntl } from 'react-intl'
 import { GitHubIcon, LinkedInIcon, TelegramIcon, type IconProps } from '@/components/icons'
+import { useContactDialog } from '@/components/contact-dialog'
 import { FooterRidges } from '@/components/footer-ridges'
 import { TransitionLink } from '@/components/transition-link'
 import { brandFont } from '@/lib/brand-font'
@@ -22,14 +23,15 @@ const socialIcons: Record<string, React.FC<IconProps>> = {
 export function Footer() {
   const pathname = usePathname()
   const intl = useIntl()
+  const { openContactDialog } = useContactDialog()
   const homeLabel = intl.formatMessage({ id: 'nav.home' }, { name: SITE_CONFIG.name })
-  const signatureRef = useRef<SVGSVGElement>(null)
   const directoryRef = useRef<HTMLDivElement>(null)
-  const signatureVisible = useInView(signatureRef, { once: true, amount: 0.12 })
-  const directoryVisible = useInView(directoryRef, { once: true, amount: 0.15 })
+  const landscapeRef = useRef<HTMLDivElement>(null)
+  const directoryVisible = useInView(directoryRef, { once: true, amount: 0.12 })
+  const compact = pathname.startsWith('/projects/')
 
   return (
-    <footer id="footer" role="contentinfo" className={styles.footer}>
+    <footer id="footer" role="contentinfo" data-compact={compact || undefined} className={styles.footer}>
       <div ref={directoryRef} data-revealed={directoryVisible} className={`section-container ${styles.directory}`}>
         <div className={styles.contact}>
           <div className={styles.identity}>
@@ -39,9 +41,13 @@ export function Footer() {
             </TransitionLink>
             <span>{SITE_CONFIG.role}</span>
           </div>
-          <a href={`mailto:${SITE_CONFIG.email}`} className={styles.email}>
+          <button
+            type="button"
+            onClick={openContactDialog}
+            className={`${styles.email} cursor-pointer text-left`}
+          >
             <span className="link-ink">{SITE_CONFIG.email}</span>
-          </a>
+          </button>
           <small className={styles.copyright}>© {new Date().getFullYear()} {SITE_CONFIG.name}</small>
         </div>
 
@@ -77,17 +83,15 @@ export function Footer() {
         </div>
       </div>
 
-      <div className={styles.landscape} aria-hidden="true">
+      <div ref={landscapeRef} className={styles.landscape} aria-hidden="true">
         <svg
-          ref={signatureRef}
-          data-revealed={signatureVisible}
           className={`${brandFont.className} ${styles.signature}`}
           viewBox="0 0 1000 113"
           focusable="false"
         >
           <text x="0" y="103" textLength="1000" lengthAdjust="spacingAndGlyphs">{SITE_CONFIG.name}</text>
         </svg>
-        <FooterRidges />
+        <FooterRidges landscapeRef={landscapeRef} />
       </div>
     </footer>
   )
